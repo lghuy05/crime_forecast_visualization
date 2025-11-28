@@ -1,268 +1,222 @@
-Phase 1: Foundation (Weeks 1-4)
-Core Visualization System
-
-    Interactive Hotspot Map
-
-        Base map with grid overlays (250m/500m)
-
-        Toggle between satellite and street views
-
-        Basic crime density heatmap
-
-    Model Comparison Dashboard
-
-        Side-by-side performance metrics (PEI, Accuracy)
-
-        Simple charts for Lee vs MLP comparison
-
-        Dataset selector (Portland/Sarasota, monthly/weekly)
-
-    Basic Data Pipeline
-
-        Convert existing CSV results to web format
-
-        Static performance data loading
-
-        Basic filtering (crime type, time period)
-
-🎯 Deliverable: Working prototype showing basic map + metrics comparison
-🗓️ Phase 2: Interactive Analysis (Weeks 5-8)
-Advanced Visualization
-
-    Temporal Explorer
-
-        Time slider for historical periods
-
-        Animation mode for pattern evolution
-
-        Split-screen: Prediction vs Reality
-
-    Performance Analytics
-
-        Radar charts for model strengths
-
-        Error analysis by crime type/area
-
-        Statistical significance indicators
-
-    Model Explainability
-
-        "Why this prediction?" feature
-
-        Factor contribution breakdown
-
-        Confidence scoring visualization
-
-🎯 Deliverable: Full interactive analysis suite for researchers
-🗓️ Phase 3: Real-Time Features (Weeks 9-12)
-Live Integration
-
-    WebSocket Updates
-
-        Live model training notifications
-
-        Real-time performance streaming
-
-        Auto-comparison of new models
-
-    Collaborative Features
-
-        Researcher annotation system
-
-        Prediction flagging for review
-
-        Team discussion threads
-
-    Experiment Tracking
-
-        Model version registry
-
-        Performance evolution timeline
-
-        Hyperparameter impact visualizer
-
-🎯 Deliverable: Living research platform with team collaboration
-🗓️ Phase 4: Advanced Analytics (Weeks 13-16)
-Deep Insights
-
-    Scenario Testing
-
-        "What-if" parameter mods in real-time
-
-        Policy intervention simulation
-
-        Sensitivity analysis across models
-
-    Geographic Intelligence
-
-        Performance heatmaps by area
-
-        Challenge zone identification
-
-        Improvement opportunity mapping
-
-    Automated Reporting
-
-        Paper section generator
-
-        Export-ready visualizations
-
-        Statistical analysis automation
-
-🎯 Deliverable: Comprehensive research acceleration engine
-🗓️ Phase 5: Production & Impact (Weeks 17-20)
-Stakeholder Value
-
-    Police/Policy Dashboard
-
-        Executive summary views
-
-        Actionable patrol recommendations
-
-        Risk assessment tools
-
-    Deployment Calculator
-
-        Resource optimization
-
-        Cost-benefit analysis
-
-        Impact projection modeling
-
-    Academic Review Suite
-
-        Methodology transparency
-
-        Reproducibility toolkit
-
-        Peer review simulation
-
-🎯 Deliverable: Multi-stakeholder platform ready for deployment
-🎯 Key Features Checklist
-🔥 Must-Have (MVP)
-
-    Interactive crime hotspot map
-
-    Lee vs MLP performance comparison
-
-    Basic temporal exploration
-
-    Exportable visualizations
-
-    Dataset/crime type filtering
-
-💪 Should-Have (Phase 2)
-
-    Model explainability features
-
-    Statistical significance testing
-
-    Error analysis dashboard
-
-    Collaborative annotations
-
-    Performance evolution tracking
-
-🚀 Nice-to-Have (Phase 3+)
-
-    Real-time model updates
-
-    Automated paper generation
-
-    Policy simulation tools
-
-    Multi-city scalability
-
-    Advanced AI insights
-
-🛠️ Technical Stack Decisions
-Frontend
+🗺️ Interactive Hotspot Visualization
+Multi-Layer Map System
 text
 
-Framework: React/Vue.js (choose one)
-Maps: Leaflet/Mapbox
-Charts: Chart.js/D3.js
-State: Redux/Pinia
-Styling: Tailwind CSS + Component Library
+Base Map (Satellite/Street) 
+  ↓
+Grid Overlay (250m/500m squares)
+  ↓
+Heat Layers (Toggleable):
+  - Historical Crime Density (Ground Truth)
+  - Lee Algorithm Predictions  
+  - MLP Model Predictions
+  - Prediction Confidence Scores
+  - Error Zones (Where models disagree)
 
-Backend (if needed)
+Temporal Exploration
+
+    Time Slider: Drag through months/weeks to see prediction evolution
+
+    Animation Mode: Auto-play through time periods showing crime patterns
+
+    "Prediction vs Reality": Split-screen comparing forecast vs actual crimes
+
+📊 Advanced Model Comparison System
+1. Performance Dashboard
 text
 
-API: Node.js/Python FastAPI
-Real-time: WebSocket/Socket.io
-Data: PostgreSQL + PostGIS
-Cache: Redis
-Deployment: Docker + Vercel/Netlify
+Primary Metrics Display:
+╔══════════════════════════════════════╗
+║           MODEL A vs MODEL B         ║
+╠══════════════════╦══════════════════╣
+║   LEE ALGORITHM  ║    MLP MODEL     ║
+║ PEI: 84.3% ▲     ║ PEI: 92.1% ▲     ║
+║ Accuracy: 65.0%  ║ Accuracy: 78.5%  ║
+║ Speed: 0.2s      ║ Speed: 1.8s     ║
+╚══════════════════╩══════════════════╝
 
-Data Pipeline
+2. Comparative Analysis Features
+
+    "Model Arena": Side-by-side prediction battles
+
+    Strengths/Weaknesses Matrix:
+
+        "Lee excels in stable urban areas"
+
+        "MLP better with seasonal patterns"
+
+        "Both struggle with sudden event prediction"
+
+3. Statistical Significance Visualizer
+
+    Confidence Interval Bars on all metrics
+
+    P-value indicators for performance differences
+
+    Effect Size visualization
+
+🔄 Real-Time Research Integration
+WebSocket Live Updates
 text
 
-Current: CSV results → Web format
-Future: Model API → Real-time predictions
-Scale: Multiple cities/datasets
+Research Pipeline → Website
+     ↓
+New Model Training Complete
+     ↓  
+WebSocket Push: "New MLP model v2.3 ready"
+     ↓
+Auto-generate comparison with previous version
+     ↓
+Researcher gets notification: "MLP improved by 4.2%"
 
-📊 Success Metrics
-Research Acceleration
+Automated Experiment Tracking
 
-    Faster iteration: Model → Results time reduced by 50%
+    Model Registry: Version control for all trained models
 
-    Deeper insights: Interactive exploration uncovers new patterns
+    Performance Evolution Timeline: How each model improved over time
 
-    Better collaboration: Team knowledge systematically captured
+    Hyperparameter Impact Visualizer: See how changes affected results
 
-    Stronger papers: Automated analysis improves rigor
-
-Real-World Impact
-
-    Clear communication: Stakeholders understand model value
-
-    Actionable insights: Police get usable patrol guidance
-
-    Measured effectiveness: Track prediction success over time
-
-    Scalable solution: Ready for new cities/crime types
-
-🎯 Immediate Next Steps
-Week 1-2: Foundation
-
-    Choose tech stack and set up basic project
-
-    Convert existing CSV data to web-friendly format
-
-    Build basic map with crime hotspots
-
-    Create simple comparison dashboard
-
-Getting Started Template:
+Live Model API
 text
 
-/week-1-goals/
-  ✅ Choose: React vs Vue.js
-  ✅ Setup: Basic project structure
-  ✅ Convert: 2-3 key datasets to GeoJSON
-  ✅ Build: Crime hotspot map component
-  ✅ Create: Performance metrics display
+Upload new crime data → Get instant predictions from both models
+                     ↓
+        Side-by-side forecast comparison
+                     ↓
+    "Model A suggests patrol area X (85% confidence)"
+    "Model B suggests patrol area Y (78% confidence)"
 
-💡 Remember Our Vision
+📈 Advanced Visualization Types
+1. Radar Chart for Model Strengths
+text
 
-We're not building another dashboard. We're creating:
+[Visualize on 5 axes]:
+- Prediction Accuracy
+- Computational Speed  
+- Stability Over Time
+- Geographic Coverage
+- Crime Type Adaptability
 
-    A living research companion that grows with our work
+2. Sankey Diagram for Crime Flow
+text
 
-    An interactive knowledge system that accelerates discovery
+Past Crimes → Model Processing → Predicted Hotspots
+    ↓              ↓                 ↓
+Actual Data   Algorithm Logic   Future Risk Areas
 
-    A collaborative workspace that connects researchers
+3. Calendar Heatmap
+text
 
-    An impact demonstration tool that shows real-world value
+Show prediction performance across:
+- Days of week (weekend vs weekday patterns)
+- Seasonal variations (summer vs winter)
+- Special events (holidays, festivals)
 
-Every feature should either:
+🎮 Interactive Research Features
+1. "What-If" Scenario Builder
+text
 
-    Accelerate our research process
+Researcher can:
+- Modify model parameters in real-time
+- See immediate impact on predictions
+- Test hypothetical crime patterns
+- Compare sensitivity across models
 
-    Deepen our understanding of models
+2. Model Explainability Dashboard
+text
 
-    Improve collaboration with team
+For any prediction, show:
+- "This grid is high-risk because:"
+  ✓ Historical crimes: 12 in past 3 months
+  ✓ Neighbor grids: 3 active hotspots nearby  
+  ✓ Seasonal pattern: 40% increase expected
+  ✓ Confidence: 87% (High)
 
-    Demonstrate value to stakeholders
+3. Collaborative Annotation System
+text
 
-    Make our papers stronger and faster
+Research Team Features:
+- Comment on specific predictions: "This seems wrong because..."
+- Flag areas for manual review
+- Add ground truth notes from field reports
+- Vote on model performance in specific scenarios
+
+🔍 Advanced Analytical Views
+1. Error Analysis Matrix
+text
+
+Categorize prediction errors by:
+- False Positives (predicted crime, none occurred)
+- False Negatives (missed actual crime spots)
+- Spatial Error Distance (how far off predictions were)
+- Temporal Error (early/late predictions)
+
+2. Geographic Performance Mapping
+text
+
+Color-code map areas by:
+- Green: Both models accurate
+- Yellow: One model accurate
+- Red: Both models struggling
+- Pattern overlay: Show why certain areas are challenging
+
+3. Crime Type Specialization
+text
+
+Breakdown by crime categories:
+- Property Crimes: Model A 85% vs Model B 78%
+- Violent Crimes: Model A 62% vs Model B 81%
+- Other Crimes: Model A 71% vs Model B 69%
+
+🚀 Next-Level Research Features
+1. Automated Paper Draft Generator
+text
+
+Based on current results, auto-generate:
+- Methodology section with actual parameters
+- Results tables with live data
+- Discussion points about model differences
+- Conclusion highlights
+
+2. Peer Review Simulation
+text
+
+"Critic Mode" that asks:
+- "Have you considered seasonal adjustment?"
+- "What about the 15% performance drop in urban cores?"
+- "How do you explain Model B's suburban advantage?"
+
+3. Deployment Impact Calculator
+text
+
+Input: Police budget, patrol units available
+Output: 
+- "With these models, you could reduce crime by 12-18%"
+- "Optimal patrol routes based on predictions"
+- "Cost-benefit analysis of model deployment"
+
+🎯 User Experience Flow
+For Researchers:
+text
+
+Login → Dashboard (latest experiments) 
+  → Model Comparison (detailed analysis)
+  → Paper Builder (export results)
+  → Collaboration Hub (team notes)
+
+For Stakeholders (Police/Policy):
+text
+
+Login → Executive Summary 
+  → Risk Map (current predictions)
+  → Performance Overview (model trust scores)
+  → Actionable Insights (patrol recommendations)
+
+For Academic Reviewers:
+text
+
+Access → Methodology Explorer
+  → Results Verification (raw data access)
+  → Model Transparency (algorithm details)
+  → Reproducibility Toolkit
