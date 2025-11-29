@@ -16,17 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is logged in on app start
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      verifyToken(token);
-    } else {
-      setLoading(false);
-    }
-  }, []);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const verifyToken = async (token: string) => {
     try {
@@ -47,6 +37,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Check if user is logged in on app start
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      verifyToken(token);
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
