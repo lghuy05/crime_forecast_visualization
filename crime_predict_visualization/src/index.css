@@ -1,19 +1,24 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-/* Minimal base styles ONLY */
-html {
-  scroll-behavior: smooth;
+@custom-variant dark (&:is(.dark *));
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  background: black;
-  color: white;
+@layer utilities {
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
 }
 
-/* Custom scrollbar */
+/* Keep existing scrollbar styles */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -26,5 +31,3 @@ body {
   background: #3b82f6;
   border-radius: 4px;
 }
-
-/* Remove ALL other CSS rules - let Tailwind handle it */

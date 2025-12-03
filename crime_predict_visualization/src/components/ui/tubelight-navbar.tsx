@@ -3,11 +3,10 @@
 import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Link, useLocation } from "react-router-dom"
-import { Home } from "lucide-react" // Import any icon to get its type
+import { Home } from "lucide-react"
 
 const cn = (...classes: any[]) => classes.filter(Boolean).join(" ")
 
-// Use typeof Home to get the icon type
 type IconType = typeof Home
 
 interface NavBarProps {
@@ -31,6 +30,22 @@ export function NavBar({ items, className }: NavBarProps) {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
+  // Scroll to top when activeTab changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [activeTab])
+
+  // Also scroll to top when location changes
+  useEffect(() => {
+    setActiveTab(location.pathname)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [location.pathname])
+
+  const handleNavigation = (url: string) => {
+    setActiveTab(url)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <div className={cn("fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-6 sm:pt-6", className)}>
       <div className="flex items-center gap-3 bg-black/50 backdrop-blur-lg border border-white/10 py-1 px-1 rounded-full shadow-lg shadow-blue-500/10">
@@ -42,7 +57,7 @@ export function NavBar({ items, className }: NavBarProps) {
             <Link
               key={item.name}
               to={item.url}
-              onClick={() => setActiveTab(item.url)}
+              onClick={() => handleNavigation(item.url)}
               className={cn(
                 "relative cursor-pointer text-sm font-medium px-6 py-2 rounded-full transition-colors",
                 "text-white/80 hover:text-blue-400",
