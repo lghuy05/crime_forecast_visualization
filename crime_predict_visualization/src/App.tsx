@@ -1,70 +1,31 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './auth/context/AuthContext';
-import LoginPage from './auth/components/LoginPage';
-import Dashboard from './pages/Dashboard';
-import LoadingSpinner from './components/LoadingSpinner';
-
-// Protected route component
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
-};
-
-// Public route component (redirect to dashboard if already logged in)
-const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  return user ? <Navigate to="/dashboard" replace /> : <>{children}</>;
-};
-
-function AppContent() {
-  return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-
-        {/* Protected routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-        {/* <Route path="*" element={<Navigate to="/dashboard" replace />} /> */}
-      </Routes>
-    </Router>
-  );
-}
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import OurWork from './pages/OurWork';
+import Demo from './pages/Demo';
+import Team from './pages/Team';
+import Contact from './pages/Contact';
+import Layout from './components/Layout';
+import { ScrollProvider } from './contexts/ScrollContext';
+import { AnimationProvider } from './contexts/AnimationContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <AnimationProvider>
+      <ScrollProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/ourwork" element={<OurWork />} />
+              <Route path="/demo" element={<Demo />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+          </Layout>
+        </Router>
+      </ScrollProvider>
+    </AnimationProvider>
   );
 }
 
