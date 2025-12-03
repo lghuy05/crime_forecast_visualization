@@ -1,29 +1,30 @@
 @import "tailwindcss";
 
-/* Performance optimizations */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Smooth scrolling */
+/* Minimal base styles ONLY */
 html {
   scroll-behavior: smooth;
 }
 
-/* Performance classes */
-.performance-optimize {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: black;
+  color: white;
 }
 
-/* Simple glow animation */
-@keyframes gentle-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.animate-gentle-pulse {
-  animation: gentle-pulse 4s ease-in-out infinite;
+::-webkit-scrollbar-track {
+  background: #111;
 }
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+/* Remove ALL other CSS rules - let Tailwind handle it */

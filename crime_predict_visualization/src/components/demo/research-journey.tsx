@@ -11,13 +11,13 @@ export function ResearchJourney() {
       subtitle: "Why crime forecasting matters",
       icon: <Lightbulb className="h-3 w-3 text-white" />,
       content: (
-        <div>
+        <div className="space-y-4">
           <p className="text-gray-300 text-base mb-4">
             Crime imposes significant social and economic costs. Traditional policing methods
             are reactive, but what if we could <span className="text-blue-400">predict where and when crimes are likely to occur</span>
             before they happen?
           </p>
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-2 gap-3">
             <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
               <div className="text-blue-300 text-sm font-semibold">Problem</div>
               <div className="text-gray-400 text-xs">Reactive policing leads to inefficient resource allocation</div>
@@ -35,12 +35,12 @@ export function ResearchJourney() {
       subtitle: "Defining our objectives",
       icon: <Target className="h-3 w-3 text-white" />,
       content: (
-        <div>
+        <div className="space-y-4">
           <p className="text-gray-300 text-base mb-4">
             Our research aims to bridge the gap between traditional statistical methods
             and modern machine learning for crime prediction.
           </p>
-          <div className="space-y-2 mb-4">
+          <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <div className="h-2 w-2 rounded-full bg-blue-500" />
               <span className="text-gray-300">Compare Lee Algorithm vs MLP Neural Networks</span>
@@ -62,7 +62,7 @@ export function ResearchJourney() {
       subtitle: "How we conduct our research",
       icon: <Cpu className="h-3 w-3 text-white" />,
       content: (
-        <div>
+        <div className="space-y-4">
           <p className="text-gray-300 text-base mb-4">
             We employ a dual-model approach, comparing traditional statistical methods
             with advanced machine learning techniques.
@@ -85,7 +85,7 @@ export function ResearchJourney() {
       subtitle: "Working with real crime data",
       icon: <BarChart3 className="h-3 w-3 text-white" />,
       content: (
-        <div>
+        <div className="space-y-4">
           <p className="text-gray-300 text-base mb-4">
             We analyze multiple urban crime datasets with spatial-temporal features.
           </p>
@@ -108,7 +108,7 @@ export function ResearchJourney() {
       subtitle: "What we've accomplished so far",
       icon: <Zap className="h-3 w-3 text-white" />,
       content: (
-        <div>
+        <div className="space-y-4">
           <p className="text-gray-300 text-base mb-4">
             Our research has yielded promising results in crime hotspot prediction.
           </p>
@@ -135,7 +135,7 @@ export function ResearchJourney() {
       subtitle: "Where we're headed next",
       icon: <GitBranch className="h-3 w-3 text-white" />,
       content: (
-        <div>
+        <div className="space-y-4">
           <p className="text-gray-300 text-base mb-4">
             We plan to expand our research in several key areas to enhance practical applications.
           </p>
