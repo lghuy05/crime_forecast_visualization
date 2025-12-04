@@ -327,9 +327,8 @@ const HomePage = () => {
           </p>
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">Portland Dataset</span>
-            <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs">Chicago Dataset</span>
-            <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-xs">NYC Dataset</span>
-            <span className="px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-xs">250m Grid Resolution</span>
+            <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs">Sara Sota Dataset</span>
+            <span className="px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-xs">250m and 500m Grid Resolution</span>
           </div>
           <div className="text-sm text-gray-400">
             <span className="text-blue-300">✓ Temporal Features:</span> Monthly/Weekly crime patterns

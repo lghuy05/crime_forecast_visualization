@@ -8,16 +8,13 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <Link to="/" className="text-2xl font-bold">
-              CrimeForecast<span className="text-blue-400">.AI</span>
+              Crime Forecast<span className="text-blue-400"> Research</span>
             </Link>
             <p className="text-white/60 text-sm mt-2">
-              Advanced Crime Forecasting Research
+              University of South Florida
             </p>
           </div>
           <div className="text-center md:text-right">
-            <p className="text-white/50 text-sm">
-              © {new Date().getFullYear()} Crime Forecasting Research Project
-            </p>
             <p className="text-white/40 text-xs mt-1">
               Based on Lee et al. (2019) methodology
             </p>
