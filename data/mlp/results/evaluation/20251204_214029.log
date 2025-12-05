@@ -1,0 +1,14 @@
+2025-12-04 21:40:29,365 - INFO - MLP: 20→(128, 64)→1, dropout=0.3, bn=True
+2025-12-04 21:40:29,366 - INFO - Loaded model and scaler from crime_forecasting/experiments/mlp/checkpoints/sarasota_monthly_500_all_best.pth
+2025-12-04 21:40:29,366 - INFO - Evaluating MLP on sarasota_all
+2025-12-04 21:40:31,947 - INFO - Generated 1510 predictions for 202302
+2025-12-04 21:40:31,957 - INFO - Period 1: PEI=0.701, Acc=0.400
+2025-12-04 21:40:31,964 - INFO - Period 2: PEI=0.804, Acc=0.500
+2025-12-04 21:40:31,970 - INFO - Period 3: PEI=0.820, Acc=0.450
+2025-12-04 21:40:31,974 - INFO - Generating outputs in: /home/yui/cs/projects/research/crime-forecasting-research/src/crime_forecasting/experiments/mlp/results/sarasota_all_monthly_500_grid-id_20251204_214031_202302
+2025-12-04 21:40:32,513 - INFO -   Created performance_barchart.png
+2025-12-04 21:40:32,517 - INFO -   Created summary_table.csv
+2025-12-04 21:40:32,640 - INFO -   Created summary_table.png
+2025-12-04 21:40:32,645 - INFO -   Created grid_ranking.csv
+2025-12-04 21:40:33,897 - INFO -   Created grid_ranking.png
+2025-12-04 21:40:33,897 - INFO - Generated 5 files in: /home/yui/cs/projects/research/crime-forecasting-research/src/crime_forecasting/experiments/mlp/results/sarasota_all_monthly_500_grid-id_20251204_214031_202302
