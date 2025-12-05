@@ -1,5 +1,3 @@
-// hooks/use-first-load.ts
-"use client";
 
 import { useState, useEffect } from 'react';
 

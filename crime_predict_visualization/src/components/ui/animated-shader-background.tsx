@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Infinity, Rocket, Shield, Brain, Play, ChevronDown } from 'lucide-react';

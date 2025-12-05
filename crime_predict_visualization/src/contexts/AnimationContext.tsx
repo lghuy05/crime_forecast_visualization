@@ -1,4 +1,3 @@
-"use client";
 
 import React, { createContext, useContext, useEffect } from 'react';
 import { gsap } from 'gsap';

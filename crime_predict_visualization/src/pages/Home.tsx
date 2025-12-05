@@ -8,22 +8,42 @@ import { GooeyText } from '../components/ui/gooey-text-morphing';
 import { Timeline } from '../components/ui/timeline';
 
 // Custom hook to detect page refresh (simplified)
-const useIsPageRefresh = () => {
-  const [isRefresh, setIsRefresh] = useState(true);
+const useShouldShowLoading = () => {
+  const [shouldShow, setShouldShow] = useState(true);
 
   useEffect(() => {
-    const hasLoaded = sessionStorage.getItem('homePageLoaded');
+    // Check if we JUST navigated from another page
+    const navigationEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
 
-    if (hasLoaded) {
-      setIsRefresh(false);
+    if (navigationEntry) {
+      // Type 1: Page reload/refresh
+      // Type 2: Navigation via back/forward
+      // Type 255: Other
+      const isReload = navigationEntry.type === 'reload';
+
+      if (isReload) {
+        // Page was refreshed - show loading
+        setShouldShow(true);
+      } else {
+        // Normal navigation - don't show loading
+        setShouldShow(false);
+      }
     } else {
-      setTimeout(() => {
-        sessionStorage.setItem('homePageLoaded', 'true');
-      }, 100);
+      // Fallback: Check if this is the first page load
+      const firstLoad = sessionStorage.getItem('firstHomeLoad');
+
+      if (!firstLoad) {
+        // First time ever loading the app
+        sessionStorage.setItem('firstHomeLoad', 'true');
+        setShouldShow(true);
+      } else {
+        // Already loaded before, likely navigation
+        setShouldShow(false);
+      }
     }
   }, []);
 
-  return isRefresh;
+  return shouldShow;
 };
 
 // Loading Screen Component
@@ -59,7 +79,6 @@ const LoadingScreen = ({ onComplete }: { onComplete?: () => void }) => {
   );
 };
 
-// 1. MLP CARD (Coming Soon) - Updated for new layout
 interface MLPCardProps {
   index: number;
 }
@@ -115,7 +134,7 @@ const MLPCardFixed: React.FC<MLPCardProps> = ({ index }) => {
             </svg>
           </div>
           <p className="text-amber-400 text-xs mt-2">
-            Available Q4 2024 • Currently in development
+            Currently in development
           </p>
         </div>
       </div>
@@ -205,7 +224,7 @@ const StatCardFixed: React.FC<StatCardProps> = ({ value, icon: Icon, label, suff
 
 const HomePage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isPageRefresh = useIsPageRefresh();
+  const isPageRefresh = useShouldShowLoading();
   const [isLoading, setIsLoading] = useState(isPageRefresh);
 
   const handleLoadingComplete = () => {

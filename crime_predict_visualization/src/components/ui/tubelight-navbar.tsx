@@ -1,4 +1,3 @@
-"use client"
 
 import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
@@ -29,17 +28,6 @@ export function NavBar({ items, className }: NavBarProps) {
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
-
-  // Scroll to top when activeTab changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [activeTab])
-
-  // Also scroll to top when location changes
-  useEffect(() => {
-    setActiveTab(location.pathname)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [location.pathname])
 
   const handleNavigation = (url: string) => {
     setActiveTab(url)
