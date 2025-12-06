@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Actual Crime Data Processor</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .card { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #45a049; }
+        button:disabled { background: #cccccc; cursor: not-allowed; }
+        .result { background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #ffebee; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .file-list { margin-top: 10px; }
+        .file-item { padding: 8px; border-bottom: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Actual Crime Data Processor</h1>
+    <p>Extract and sort actual crime data from MLP results</p>
+    
+    <div class="card">
+        <h2>📁 Current CSV Path</h2>
+        <code>data/mlp/results/sarasota_all_monthly_500_grid-id_20251205_190416_202302/grid_ranking.csv</code>
+        
+        <div style="margin-top: 20px;">
+            <button onclick="runProcessor()" id="runBtn">Run Processor</button>
+        </div>
+    </div>
+    
+    <div id="result"></div>
+    
+    <div class="card">
+        <h2>📊 View Results</h2>
+        <button onclick="loadResults()">List Available Periods</button>
+        <div id="resultsList"></div>
+    </div>
+    
+    <script>
+        async function runProcessor() {
+            const btn = document.getElementById('runBtn');
+            const resultDiv = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            resultDiv.innerHTML = '<div class="result">Processing CSV file...</div>';
+            
+            try {
+                const response = await fetch('/run-processor/');
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = `
+                        <div class="result">
+                            <h3>✅ Success!</h3>
+                            <p>${data.message}</p>
+                            <p><strong>Output Directory:</strong> ${data.output_dir}</p>
+                            
+                            <h4>📁 Created Files:</h4>
+                            <div class="file-list">
+                    `;
+                    
+                    data.files_created.forEach(file => {
+                        html += `<div class="file-item">${file.name} (${file.size})</div>`;
+                    });
+                    
+                    html += `</div></div>`;
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error</h3>
+                            <p>${data.error}</p>
+                            <p><small>${data.hint || ''}</small></p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Network Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Run Processor';
+            }
+        }
+        
+        async function loadResults() {
+            const resultsDiv = document.getElementById('resultsList');
+            resultsDiv.innerHTML = '<p>Loading...</p>';
+            
+            const response = await fetch('/results/');
+            const data = await response.json();
+            
+            if (data.available_periods) {
+                let html = '<h4>Available Periods:</h4>';
+                html += '<ul>';
+                data.available_periods.forEach(period => {
+                    html += `<li>
+                        ${period} 
+                        <button onclick="viewPeriod('${period}')" style="margin-left: 10px; padding: 4px 8px; font-size: 12px;">
+                            View Data
+                        </button>
+                    </li>`;
+                });
+                html += '</ul>';
+                resultsDiv.innerHTML = html;
+            } else {
+                resultsDiv.innerHTML = `<p class="error">${data.error || 'No results found'}</p>`;
+            }
+        }
+        
+        async function viewPeriod(period) {
+            alert(`Viewing data for period: ${period}\nCheck browser console for JSON data.`);
+            
+            const response = await fetch(`/results/${period}/`);
+            const data = await response.json();
+            
+            console.log(`Data for period ${period}:`, data);
+        }
+    </script>
+</body>
+</html>
