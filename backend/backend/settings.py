@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "actual_crime_process",
+    "map_coordinate",
 ]
 
 MIDDLEWARE = [

@@ -65,39 +65,12 @@ def save_actual_data_by_period(df: pd.DataFrame, output_base_dir: str = "data/ac
 
 
 def process_mlp_results(csv_path: str):
-    """Main function to process MLP results"""
-    print(f"\n{'=' * 60}")
-    print(f"PROCESSING MLP RESULTS")
-    print(f"{'=' * 60}")
-
     # 1. Extract actual crime data
     df = extract_actual_crime_data(csv_path)
 
     if df is None:
         print("Failed to extract data.")
         return None
-
-    # 2. Show some stats
-    print(f"\n📊 STATISTICS:")
-    print(f"   Total grids: {len(df)}")
-    for period in df["Target_Period"].unique():
-        period_df = df[df["Target_Period"] == period]
-        max_crime = period_df["Actual_Crime_Count"].max()
-        min_crime = period_df["Actual_Crime_Count"].min()
-        avg_crime = period_df["Actual_Crime_Count"].mean()
-
-        print(f"\n   Period: {period}")
-        print(f"     Grids: {len(period_df)}")
-        print(f"     Max crimes: {max_crime}")
-        print(f"     Min crimes: {min_crime}")
-        print(f"     Avg crimes: {avg_crime:.2f}")
-
-        # Show top 3
-        top_3 = period_df.head(3)
-        for _, row in top_3.iterrows():
-            print(
-                f"     Top {row['Rank']}: Grid {row['grid_id']} - {row['Actual_Crime_Count']} crimes"
-            )
 
     # 3. Save to files
     output_dir = save_actual_data_by_period(df)
