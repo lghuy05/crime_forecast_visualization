@@ -2,7 +2,7 @@ from numpy import require
 import pandas as pd
 from pathlib import Path
 import os
-
+import math
 from pandas._libs.hashtable import mode
 
 
@@ -26,6 +26,31 @@ def get_extracted_data_model(
     return result_df
 
 
+def calculate_grid_bounds(
+    center_lat: float, center_lng: float, grid_size_meters: float = 500
+) -> dict:
+    # Constants
+    METERS_PER_DEGREE_LAT = 111111  # Approximately 111.111 km per degree latitude
+    meters_per_degree_lng = METERS_PER_DEGREE_LAT * math.cos(math.radians(center_lat))
+
+    half_grid_lat = grid_size_meters / 2 / METERS_PER_DEGREE_LAT
+    half_grid_lng = grid_size_meters / 2 / meters_per_degree_lng
+
+    # Calculate all four corners
+    southwest = (center_lat - half_grid_lat, center_lng - half_grid_lng)
+    northeast = (center_lat + half_grid_lat, center_lng + half_grid_lng)
+    northwest = (center_lat + half_grid_lat, center_lng - half_grid_lng)
+    southeast = (center_lat - half_grid_lat, center_lng + half_grid_lng)
+
+    return {
+        "southwest_lat": southwest[0],
+        "southwest_lng": southwest[1],
+        "northeast_lat": northeast[0],
+        "northeast_lng": northeast[1],
+        "bounds": [southwest, northeast],  # For Leaflet
+    }
+
+
 def getting_coordinate(csv_path: str) -> pd.DataFrame:
     # lat = ycentroid
     # long = xcentroid
@@ -36,11 +61,23 @@ def getting_coordinate(csv_path: str) -> pd.DataFrame:
     result_df.rename(
         columns={
             "gridid": "grid_id",
-            "xcentroid": "longitude",
-            "ycentroid": "latitude",
+            "xcentroid": "center_longitude",
+            "ycentroid": "center_latitude",
         },
         inplace=True,
     )
+    bounds_data = []
+    for _, row in result_df.iterrows():
+        bounds = calculate_grid_bounds(
+            row["center_latitude"], row["center_longitude"], 500
+        )
+        bounds_data.append(bounds)
+
+    # Convert to DataFrame and merge with original
+    bounds_df = pd.DataFrame(bounds_data)
+
+    # Merge bounds with coordinate data
+    result_df = pd.concat([result_df, bounds_df], axis=1)
     return result_df
 
 
@@ -82,12 +119,21 @@ def mapping_coordinate(
             how="inner",  # INNER JOIN: only rows with matching grid_id in both
         )
 
-        for col in ["Rank", "grid_id", "Target_Period", "Actual_Crime_Count"]:
-            if (
-                col in actual_combined.columns
-                and actual_combined[col].dtype == "float64"
-            ):
-                actual_combined[col] = actual_combined[col].astype("int32")
+        for df_combined in [predicted_combined, actual_combined]:
+            for col in df_combined.columns:
+                if df_combined[col].dtype == "float64" and col not in [
+                    "center_latitude",
+                    "center_longitude",
+                    "southwest_lat",
+                    "southwest_lng",
+                    "northeast_lat",
+                    "northeast_lng",
+                    "northwest_lat",
+                    "northwest_lng",
+                    "southeast_lat",
+                    "southeast_lng",
+                ]:
+                    df_combined[col] = df_combined[col].astype("int32")
     else:
         df_crime_data = get_extracted_data_model(model_path, model, limit_rows)
         df_coordinate = getting_coordinate(coordinate_data_path)
@@ -97,8 +143,19 @@ def mapping_coordinate(
             on="grid_id",  # Join key
             how="inner",  # INNER JOIN: only rows with matching grid_id in both
         )
-        for col in ["Rank", "grid_id", "Target_Period", "Crime_T1"]:
-            if col in combined.columns and combined[col].dtype == "float64":
+        for col in combined.columns:
+            if combined[col].dtype == "float64" and col not in [
+                "center_latitude",
+                "center_longitude",
+                "southwest_lat",
+                "southwest_lng",
+                "northeast_lat",
+                "northeast_lng",
+                "northwest_lat",
+                "northwest_lng",
+                "southeast_lat",
+                "southeast_lng",
+            ]:
                 combined[col] = combined[col].astype("int32")
 
     if model == "lee":
