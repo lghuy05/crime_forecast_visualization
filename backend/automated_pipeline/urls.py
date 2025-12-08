@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path("", views.home_view, name="home"),
-    path("run-mapping/", views.run_mapping_process, name="run_mapping"),
+    path("call_endpoint_map/", views.call_endpoint_map, name="call_endpoint_map"),
 ]

@@ -1,0 +1,820 @@
+<!-- automated_pipeline/templates/automated_pipeline/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Pipeline - Endpoint Tester</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card h2 i {
+            color: #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .buttons .btn {
+            width: auto;
+            flex: 1;
+        }
+        
+        .file-path {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+        
+        .result-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 5px solid #667eea;
+            display: none;
+        }
+        
+        .result-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .response-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .response-content pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box h4 {
+            color: #2196f3;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-box ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .log-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .log-timestamp {
+            color: #6a9955;
+        }
+        
+        .log-message {
+            color: #9cdcfe;
+        }
+        
+        .log-error {
+            color: #f44747;
+        }
+        
+        .log-success {
+            color: #4ec9b0;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-robot"></i> Automated Pipeline Tester</h1>
+            <p>Test the communication between Endpoint A and Endpoint B</p>
+        </div>
+        
+        <div class="content">
+            <!-- Left Column: Configuration -->
+            <div class="card">
+                <h2><i class="fas fa-cog"></i> Configuration</h2>
+                
+                <div class="tabs">
+                    <button class="tab active" data-tab="basic">Basic</button>
+                    <button class="tab" data-tab="advanced">Advanced</button>
+                    <button class="tab" data-tab="monitor">Monitor</button>
+                </div>
+                
+                <!-- Basic Tab -->
+                <div class="tab-content active" id="basic-tab">
+                    <div class="form-group">
+                        <label for="model"><i class="fas fa-brain"></i> Model Type</label>
+                        <select id="model">
+                            <option value="mlp" selected>MLP Model</option>
+                            <option value="lee">Lee Model</option>
+                            <option value="actual">Actual Data</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modelDataPath"><i class="fas fa-file-csv"></i> Model Data Path</label>
+                        <div class="file-path" id="currentModelPath">
+                            data/mlp/results/sarasota_all_monthly_500_grid-id_20251205_190416_202302/grid_ranking.csv
+                        </div>
+                        <input type="text" id="modelDataPath" placeholder="Enter custom model data path (optional)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="coordinatePath"><i class="fas fa-map-marker-alt"></i> Coordinate Path</label>
+                        <div class="file-path" id="currentCoordinatePath">
+                            coordinate/coordinate.csv
+                        </div>
+                        <input type="text" id="coordinatePath" placeholder="Enter custom coordinate path (optional)">
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4><i class="fas fa-info-circle"></i> Information</h4>
+                        <p>This will call Endpoint A, which then calls Endpoint B with your selected parameters.</p>
+                    </div>
+                </div>
+                
+                <!-- Advanced Tab -->
+                <div class="tab-content" id="advanced-tab">
+                    <div class="form-group">
+                        <label for="endpointAUrl"><i class="fas fa-link"></i> Endpoint A URL</label>
+                        <input type="text" id="endpointAUrl" value="/call-endpoint-map/" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="endpointBUrl"><i class="fas fa-link"></i> Endpoint B URL</label>
+                        <input type="text" id="endpointBUrl" value="http://localhost:8000/run-mapping/" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="requestMethod"><i class="fas fa-exchange-alt"></i> Request Method</label>
+                        <select id="requestMethod">
+                            <option value="POST">POST</option>
+                            <option value="GET">GET</option>
+                        </select>
+                    </div>
+                    
+                    <div class="code-block">
+                        // JSON Payload sent to Endpoint A<br>
+                        {<br>
+                        &nbsp;&nbsp;"model": "<span id="jsonModel">mlp</span>",<br>
+                        &nbsp;&nbsp;"model_data_path": "<span id="jsonModelPath">data/mlp/results/...</span>",<br>
+                        &nbsp;&nbsp;"coordinate_path": "<span id="jsonCoordinatePath">coordinate/coordinate.csv</span>"<br>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Monitor Tab -->
+                <div class="tab-content" id="monitor-tab">
+                    <div class="form-group">
+                        <label><i class="fas fa-terminal"></i> Real-time Logs</label>
+                        <div class="log-output" id="logOutput">
+                            <div class="log-entry">
+                                <span class="log-timestamp">[12:34:56]</span>
+                                <span class="log-message">System ready. Select options and click "Run Pipeline".</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-chart-line"></i> Performance</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div style="text-align: center; padding: 15px; background: #e9ecef; border-radius: 8px;">
+                                <div style="font-size: 24px; font-weight: bold; color: #667eea;" id="responseTime">0</div>
+                                <div style="font-size: 12px; color: #666;">Response Time (ms)</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #e9ecef; border-radius: 8px;">
+                                <div style="font-size: 24px; font-weight: bold; color: #4CAF50;" id="successCount">0</div>
+                                <div style="font-size: 12px; color: #666;">Successful Runs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn" id="runPipeline">
+                        <i class="fas fa-play"></i> Run Pipeline
+                    </button>
+                    <button class="btn btn-secondary" id="resetForm">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Calling Endpoint A → Endpoint B...</p>
+                </div>
+            </div>
+            
+            <!-- Right Column: Results -->
+            <div class="card">
+                <h2><i class="fas fa-chart-bar"></i> Results</h2>
+                
+                <div class="result-container" id="resultContainer">
+                    <div class="result-header">
+                        <h3 id="resultTitle">Pipeline Results</h3>
+                        <span class="status-badge" id="statusBadge">Status</span>
+                    </div>
+                    
+                    <div id="resultContent">
+                        <p><strong>Endpoint A URL:</strong> <span id="resultEndpointA"></span></p>
+                        <p><strong>Endpoint B URL:</strong> <span id="resultEndpointB"></span></p>
+                        <p><strong>Request Method:</strong> <span id="resultMethod"></span></p>
+                        <p><strong>Timestamp:</strong> <span id="resultTimestamp"></span></p>
+                        
+                        <div style="margin: 20px 0;">
+                            <h4>Request Payload:</h4>
+                            <div class="response-content">
+                                <pre id="requestPayload"></pre>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 20px 0;">
+                            <h4>Response from Endpoint A:</h4>
+                            <div class="response-content">
+                                <pre id="responseData"></pre>
+                            </div>
+                        </div>
+                        
+                        <div id="parsedResponse" class="hidden">
+                            <h4>Parsed Response:</h4>
+                            <div class="response-content">
+                                <pre id="parsedData"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-lightbulb"></i> How it works</h4>
+                    <ol>
+                        <li>You select model type and paths</li>
+                        <li>Frontend calls Endpoint A (Automated Pipeline)</li>
+                        <li>Endpoint A calls Endpoint B (Mapping Processor)</li>
+                        <li>Endpoint B processes the data and returns results</li>
+                        <li>Endpoint A forwards results back to you</li>
+                    </ol>
+                    <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                        <strong>Note:</strong> Both endpoints must be running on localhost:8000
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const modelSelect = document.getElementById('model');
+        const modelDataPathInput = document.getElementById('modelDataPath');
+        const coordinatePathInput = document.getElementById('coordinatePath');
+        const runPipelineBtn = document.getElementById('runPipeline');
+        const resetFormBtn = document.getElementById('resetForm');
+        const loadingDiv = document.getElementById('loading');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultTitle = document.getElementById('resultTitle');
+        const statusBadge = document.getElementById('statusBadge');
+        const resultContent = document.getElementById('resultContent');
+        const requestPayload = document.getElementById('requestPayload');
+        const responseData = document.getElementById('responseData');
+        const parsedData = document.getElementById('parsedData');
+        const parsedResponse = document.getElementById('parsedResponse');
+        const logOutput = document.getElementById('logOutput');
+        const responseTimeEl = document.getElementById('responseTime');
+        const successCountEl = document.getElementById('successCount');
+        
+        // Tab functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabId}-tab`) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // Model paths configuration
+        const modelPaths = {
+            mlp: "data/mlp/results/sarasota_all_monthly_500_grid-id_20251205_190416_202302/grid_ranking.csv",
+            lee: "data/baseline/grid_ranking.csv",
+            actual: "data/actual/actual_crime_202302.csv"
+        };
+        
+        const coordinatePaths = {
+            mlp: "coordinate/coordinate.csv",
+            lee: "coordinate/coordinate.csv",
+            actual: "coordinate/coordinate.csv"
+        };
+        
+        // Update JSON preview
+        function updateJsonPreview() {
+            const model = modelSelect.value;
+            const modelPath = modelDataPathInput.value || modelPaths[model];
+            const coordPath = coordinatePathInput.value || coordinatePaths[model];
+            
+            document.getElementById('jsonModel').textContent = model;
+            document.getElementById('jsonModelPath').textContent = modelPath;
+            document.getElementById('jsonCoordinatePath').textContent = coordPath;
+            
+            document.getElementById('currentModelPath').textContent = modelPath;
+            document.getElementById('currentCoordinatePath').textContent = coordPath;
+        }
+        
+        // Add log entry
+        function addLogEntry(message, type = 'info') {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('en-US', {hour12: false});
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-${type}">${message}</span>
+            `;
+            
+            logOutput.appendChild(logEntry);
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+        
+        // Stats
+        let successCount = 0;
+        
+        // Model change handler
+        modelSelect.addEventListener('change', updateJsonPreview);
+        modelDataPathInput.addEventListener('input', updateJsonPreview);
+        coordinatePathInput.addEventListener('input', updateJsonPreview);
+        
+        // Initialize
+        updateJsonPreview();
+        
+        // Run Pipeline
+        runPipelineBtn.addEventListener('click', async () => {
+            const model = modelSelect.value;
+            const customModelPath = modelDataPathInput.value;
+            const customCoordPath = coordinatePathInput.value;
+            const method = document.getElementById('requestMethod').value;
+            
+            const modelPath = customModelPath || modelPaths[model];
+            const coordPath = customCoordPath || coordinatePaths[model];
+            
+            const payload = {
+                model: model,
+                model_data_path: modelPath,
+                coordinate_path: coordPath
+            };
+            
+            // Show loading
+            loadingDiv.classList.add('show');
+            resultContainer.classList.remove('show');
+            runPipelineBtn.disabled = true;
+            
+            // Clear previous results
+            requestPayload.textContent = '';
+            responseData.textContent = '';
+            parsedData.textContent = '';
+            
+            // Add log
+            addLogEntry(`Starting pipeline for ${model} model...`, 'info');
+            
+            const startTime = Date.now();
+            
+            try {
+                // Prepare request options
+                const requestOptions = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                };
+                
+                // Add body for POST requests
+                if (method === 'POST') {
+                    requestOptions.body = JSON.stringify(payload);
+                } else if (method === 'GET') {
+                    // For GET, append as query params
+                    const params = new URLSearchParams(payload);
+                    endpointAUrl = `${document.getElementById('endpointAUrl').value}?${params}`;
+                }
+                
+                // Call Endpoint A
+                const endpointAUrl = document.getElementById('endpointAUrl').value;
+                addLogEntry(`Calling Endpoint A: ${endpointAUrl}`, 'info');
+                
+                const response = await fetch(endpointAUrl, requestOptions);
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                // Update response time
+                responseTimeEl.textContent = responseTime;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Show results
+                    resultTitle.textContent = 'Pipeline Execution Successful';
+                    statusBadge.textContent = 'SUCCESS';
+                    statusBadge.className = 'status-badge status-success';
+                    
+                    // Update result content
+                    document.getElementById('resultEndpointA').textContent = endpointAUrl;
+                    document.getElementById('resultEndpointB').textContent = document.getElementById('endpointBUrl').value;
+                    document.getElementById('resultMethod').textContent = method;
+                    document.getElementById('resultTimestamp').textContent = new Date().toLocaleString();
+                    
+                    // Format and display request payload
+                    requestPayload.textContent = JSON.stringify(payload, null, 2);
+                    
+                    // Format and display response
+                    responseData.textContent = JSON.stringify(data, null, 2);
+                    
+                    // Try to parse the nested response
+                    if (data.response_from_map) {
+                        parsedData.textContent = JSON.stringify(data.response_from_map, null, 2);
+                        parsedResponse.classList.remove('hidden');
+                    } else {
+                        parsedResponse.classList.add('hidden');
+                    }
+                    
+                    // Show result container
+                    resultContainer.classList.add('show');
+                    
+                    // Add success log
+                    addLogEntry(`Pipeline completed successfully in ${responseTime}ms`, 'success');
+                    addLogEntry(`Model: ${model}, Rows processed: ${data.response_from_map?.rows_processed || 'N/A'}`, 'success');
+                    
+                    // Update success count
+                    successCount++;
+                    successCountEl.textContent = successCount;
+                    
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+            } catch (error) {
+                // Show error
+                resultTitle.textContent = 'Pipeline Execution Failed';
+                statusBadge.textContent = 'ERROR';
+                statusBadge.className = 'status-badge status-error';
+                
+                // Update result content
+                document.getElementById('resultEndpointA').textContent = endpointAUrl;
+                document.getElementById('resultEndpointB').textContent = document.getElementById('endpointBUrl').value;
+                document.getElementById('resultMethod').textContent = method;
+                document.getElementById('resultTimestamp').textContent = new Date().toLocaleString();
+                
+                // Format and display request payload
+                requestPayload.textContent = JSON.stringify(payload, null, 2);
+                
+                // Display error
+                responseData.textContent = JSON.stringify({
+                    error: error.message,
+                    stack: error.stack
+                }, null, 2);
+                
+                // Hide parsed response
+                parsedResponse.classList.add('hidden');
+                
+                // Show result container
+                resultContainer.classList.add('show');
+                
+                // Add error log
+                addLogEntry(`Pipeline failed: ${error.message}`, 'error');
+                
+                console.error('Pipeline error:', error);
+            } finally {
+                // Hide loading
+                loadingDiv.classList.remove('show');
+                runPipelineBtn.disabled = false;
+                
+                // Scroll to results
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        
+        // Reset form
+        resetFormBtn.addEventListener('click', () => {
+            modelSelect.value = 'mlp';
+            modelDataPathInput.value = '';
+            coordinatePathInput.value = '';
+            updateJsonPreview();
+            
+            // Hide results
+            resultContainer.classList.remove('show');
+            
+            // Add log
+            addLogEntry('Form reset to defaults', 'info');
+        });
+        
+        // Test different models
+        document.addEventListener('DOMContentLoaded', () => {
+            addLogEntry('Automated Pipeline Tester initialized', 'success');
+            addLogEntry('Ready to test Endpoint A → Endpoint B communication', 'info');
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Enter to run pipeline
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runPipelineBtn.click();
+            }
+            
+            // Esc to reset
+            if (e.key === 'Escape') {
+                resetFormBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -22,4 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("process/", include("actual_crime_process.urls")),
     path("mapping/", include("map_coordinate.urls")),
+    path("automated_pipeline/", include("automated_pipeline.urls")),
 ]
