@@ -1,10 +1,10 @@
-// Demo.tsx - WITH ALL KEYS FIXED
+// Demo.tsx - WITH METRICS ADDED
 import React, { useState, useEffect, useCallback } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Rectangle, LayersControl, LayerGroup, Tooltip, Popup } from 'react-leaflet';
 import { LatLngBoundsExpression } from 'leaflet';
 import { crimePredictionAPI } from '../api';
-import type { ModelType, ApiResponse } from '../api';
+import type { ModelType, ApiResponse, MetricsResponse } from '../api';
 
 // Model configuration
 const MODEL_CONFIG = {
@@ -31,6 +31,7 @@ const SARASOTA_CENTER: [number, number] = [27.3364, -82.5307];
 export default function CrimePredictionMap() {
   // State for data and UI
   const [gridData, setGridData] = useState<ApiResponse | null>(null);
+  const [metricsData, setMetricsData] = useState<MetricsResponse | null>(null); // Added metrics state
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [activeModels, setActiveModels] = useState<Record<ModelType, boolean>>({
@@ -62,8 +63,25 @@ export default function CrimePredictionMap() {
     setError(null);
 
     try {
-      const data = await crimePredictionAPI.fetchTopPredictions(selectedPeriod);
-      setGridData(data);
+      // Fetch grid data
+      const gridDataResponse = await crimePredictionAPI.fetchTopPredictions(selectedPeriod);
+      setGridData(gridDataResponse);
+
+      // Fetch metrics for this period - convert YYYYMM to period number
+      // Assuming: 202302 -> 1, 202303 -> 2, 202304 -> 3
+      let metricPeriod = 1; // default
+      if (selectedPeriod === 202302) metricPeriod = 1;
+      else if (selectedPeriod === 202303) metricPeriod = 2;
+      else if (selectedPeriod === 202304) metricPeriod = 3;
+
+      try {
+        const metricsResponse = await crimePredictionAPI.fetchMetricsByPeriod(metricPeriod);
+        setMetricsData(metricsResponse);
+      } catch (metricsErr) {
+        console.log('Metrics not available for this period:', metricsErr);
+        // Don't set error, just leave metrics as null
+      }
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
@@ -141,6 +159,14 @@ export default function CrimePredictionMap() {
 
     return { max, avg, total };
   }, [gridData, getCrimeCount]);
+
+  // Get metric for a specific model
+  const getModelMetric = useCallback((modelName: string) => {
+    if (!metricsData || !metricsData.metrics) return null;
+    return metricsData.metrics.find(metric =>
+      metric.model.toLowerCase() === modelName.toLowerCase()
+    );
+  }, [metricsData]);
 
   // Render grid rectangles for a specific model
   const renderModelGrids = useCallback((model: ModelType) => {
@@ -233,6 +259,78 @@ export default function CrimePredictionMap() {
       </LayerGroup>
     );
   }, [gridData, activeModels, getGridBounds, getColorIntensity, getCrimeCount, calculateModelStats]);
+
+  // Render metrics display section
+  const renderMetricsDisplay = () => {
+    if (!metricsData || !metricsData.metrics || metricsData.metrics.length === 0) {
+      return null;
+    }
+
+    const mlpMetric = getModelMetric('MLP');
+    const baselineMetric = getModelMetric('Baseline');
+    const comparison = metricsData.comparison;
+
+    return (
+      <div className="mb-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+        <h2 className="text-xl font-bold mb-4">📈 Model Performance</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {mlpMetric && (
+            <div className="p-3 rounded-lg" style={{ backgroundColor: `${mlpMetric.color}20`, borderLeft: `4px solid ${mlpMetric.color}` }}>
+              <h3 className="font-bold mb-2" style={{ color: mlpMetric.color }}>{mlpMetric.model_display}</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>PEI:</span>
+                  <span className="font-bold text-lg">{mlpMetric.pei_percent.toFixed(1)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Accuracy:</span>
+                  <span className="font-bold text-lg">{mlpMetric.accuracy.toFixed(1)}%</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {baselineMetric && (
+            <div className="p-3 rounded-lg" style={{ backgroundColor: `${baselineMetric.color}20`, borderLeft: `4px solid ${baselineMetric.color}` }}>
+              <h3 className="font-bold mb-2" style={{ color: baselineMetric.color }}>{baselineMetric.model_display}</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>PEI:</span>
+                  <span className="font-bold text-lg">{baselineMetric.pei_percent.toFixed(1)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Accuracy:</span>
+                  <span className="font-bold text-lg">{baselineMetric.accuracy.toFixed(1)}%</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {comparison && mlpMetric && baselineMetric && (
+          <div className="p-3 bg-gray-900/50 rounded-lg">
+            <h4 className="font-bold mb-3 text-center">🎯 Comparison</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="text-center p-3 rounded-lg bg-gray-800/50">
+                <div className="text-sm text-gray-400 mb-1">PEI</div>
+                <div className="text-lg font-bold" style={{ color: comparison.pei.winner === 'MLP' ? mlpMetric.color : baselineMetric.color }}>
+                  {comparison.pei.winner} +{comparison.pei.difference}%
+                </div>
+              </div>
+
+              <div className="text-center p-3 rounded-lg bg-gray-800/50">
+                <div className="text-sm text-gray-400 mb-1">Accuracy</div>
+                <div className="text-lg font-bold" style={{ color: comparison.accuracy.winner === 'MLP' ? mlpMetric.color : baselineMetric.color }}>
+                  {comparison.accuracy.winner} +{comparison.accuracy.difference}%
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Loading and error states
   if (loading) {
@@ -347,6 +445,9 @@ export default function CrimePredictionMap() {
         <aside className="w-80 p-6 border-r border-gray-700 bg-gray-800/50 overflow-y-auto">
           <h2 className="text-xl font-bold mb-6">📊 Model Controls</h2>
 
+          {/* Metrics Display - NEW SECTION */}
+          {renderMetricsDisplay()}
+
           {/* Toggle All Buttons */}
           <div className="mb-6 space-y-2">
             <button
@@ -371,6 +472,7 @@ export default function CrimePredictionMap() {
               const isActive = activeModels[model];
               const count = gridData?.counts[model] || 0;
               const stats = calculateModelStats(model);
+              const modelMetric = getModelMetric(config.name.replace(' Predictions', ''));
 
               return (
                 <div
@@ -400,6 +502,21 @@ export default function CrimePredictionMap() {
                       </div>
                     </div>
                   </div>
+
+                  {modelMetric && (
+                    <div className="mt-3 pt-3 border-t border-gray-600">
+                      <div className="grid grid-cols-2 gap-2 mb-2">
+                        <div className="text-center p-2 rounded bg-gray-900/50">
+                          <div className="text-xs text-gray-400">PEI</div>
+                          <div className="font-bold text-green-400">{modelMetric.pei_percent.toFixed(1)}%</div>
+                        </div>
+                        <div className="text-center p-2 rounded bg-gray-900/50">
+                          <div className="text-xs text-gray-400">Accuracy</div>
+                          <div className="font-bold text-blue-400">{modelMetric.accuracy.toFixed(1)}%</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {count > 0 && (
                     <div className="mt-3 pt-3 border-t border-gray-600 space-y-1">
@@ -443,6 +560,7 @@ export default function CrimePredictionMap() {
                 <div>• <span className="font-semibold">Dashed borders</span> = Baseline predictions</div>
                 <div>• <span className="font-semibold">Hover</span> over grids for quick info</div>
                 <div>• <span className="font-semibold">Click</span> grids for detailed popup</div>
+                <div>• <span className="font-semibold">PEI</span> = Predictive Efficiency Index</div>
               </div>
             </div>
           </div>
@@ -459,6 +577,10 @@ export default function CrimePredictionMap() {
                 <div className="flex justify-between">
                   <span>API Status:</span>
                   <span className="font-semibold text-green-400">Success</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Total Models:</span>
+                  <span className="font-semibold">{metricsData?.count || 2}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Last Updated:</span>
@@ -515,10 +637,11 @@ export default function CrimePredictionMap() {
           {/* Footer Stats */}
           <footer className="p-4 border-t border-gray-700 bg-gray-900/50">
             <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 {modelEntries.map(([model, config]) => {
                   const count = gridData?.counts[model] || 0;
                   const stats = calculateModelStats(model);
+                  const modelMetric = getModelMetric(config.name.replace(' Predictions', ''));
 
                   return (
                     <div
@@ -533,6 +656,18 @@ export default function CrimePredictionMap() {
                         </span>
                       </div>
                       <div className="text-xs text-gray-400 space-y-1">
+                        {modelMetric && (
+                          <>
+                            <div className="flex justify-between">
+                              <span>PEI:</span>
+                              <span className="font-semibold text-green-400">{modelMetric.pei_percent.toFixed(1)}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Accuracy:</span>
+                              <span className="font-semibold text-blue-400">{modelMetric.accuracy.toFixed(1)}%</span>
+                            </div>
+                          </>
+                        )}
                         <div className="flex justify-between">
                           <span>Max:</span>
                           <span className="font-semibold">{stats.max.toLocaleString()}</span>
@@ -545,6 +680,31 @@ export default function CrimePredictionMap() {
                     </div>
                   );
                 })}
+
+                {/* Performance Winner */}
+                {metricsData?.comparison && (
+                  <div className="p-3 rounded-lg bg-gray-800/50 border-l-4 border-purple-500">
+                    <div className="text-sm font-semibold mb-2 text-purple-300">🏆 Best Performer</div>
+                    <div className="text-xs text-gray-400 space-y-2">
+                      <div>
+                        <div className="text-gray-300 mb-1">PEI:</div>
+                        <div className="font-bold" style={{
+                          color: metricsData.comparison.pei.winner === 'MLP' ? '#4ECDC4' : '#FFD166'
+                        }}>
+                          {metricsData.comparison.pei.winner} (+{metricsData.comparison.pei.difference}%)
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-300 mb-1">Accuracy:</div>
+                        <div className="font-bold" style={{
+                          color: metricsData.comparison.accuracy.winner === 'MLP' ? '#4ECDC4' : '#FFD166'
+                        }}>
+                          {metricsData.comparison.accuracy.winner} (+{metricsData.comparison.accuracy.difference}%)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-3 rounded-lg bg-gray-800/50">
                   <div className="text-sm font-semibold mb-1">Map Controls</div>

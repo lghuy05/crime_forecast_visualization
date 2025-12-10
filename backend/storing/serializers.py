@@ -1,5 +1,11 @@
 from rest_framework import fields, serializers
-from .models import CrimeGrid, ActualCrime, MLPPrediction, BaselinePrediction
+from .models import (
+    CrimeGrid,
+    ActualCrime,
+    MLPPrediction,
+    BaselinePrediction,
+    MetricData,
+)
 
 
 class GridCrimeSerializer(serializers.ModelSerializer):
@@ -101,3 +107,9 @@ class BaselinePredictionSerializer(serializers.ModelSerializer):
             "baseline_predicted_count",  # Note: matches your model field name
             "rank",
         ]
+
+
+class SimpleMetricSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MetricData
+        fields = ["id", "model", "target_period", "pei_percent", "accuracy"]

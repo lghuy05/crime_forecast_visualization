@@ -145,3 +145,19 @@ class BaselinePrediction(models.Model):
 
     def __str__(self):
         return f"Grid {self.grid.grid_id} - {self.target_period}: {self.actual_crime_count} crimes"
+
+
+class MetricData(models.Model):
+    model = models.CharField(max_length=255, blank=True)
+    target_period = models.IntegerField(help_text="YearMonth format: YYYYMM")
+    pei_percent = models.FloatField(help_text="PEI")
+    accuracy = models.FloatField(help_text="Accuracy")
+
+    class Meta:
+        db_table = "metric"
+        verbose_name = "Metric"
+        verbose_name_plural = "Metrics"
+        unique_together = [["model", "target_period"]]
+
+    def __str__(self):
+        return f"{self.model} - {self.pei_percent} - {self.accuracy} - {self.target_period}"
