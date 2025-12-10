@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from .models import ActualCrime, MLPPrediction, BaselinePrediction
 from .serializers import (
@@ -8,10 +9,20 @@ from .serializers import (
     MLPPredictionSerializer,
     BaselinePredictionSerializer,
 )
+from django.utils import timezone  # Fixed import
 
 
-def home_view(request):
-    return render(request, "storing/home.html")
+@api_view(["GET"])
+@csrf_exempt  # This can stay but might not be needed
+def api_health(request):
+    """Health check endpoint for React frontend"""
+    return Response(
+        {
+            "status": "healthy",
+            "message": "API server is running",
+            "timestamp": timezone.now().isoformat(),  # Fixed: use timezone.now()
+        }
+    )
 
 
 @api_view(["GET"])
