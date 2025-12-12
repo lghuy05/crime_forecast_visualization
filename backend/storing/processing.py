@@ -252,19 +252,19 @@ class MetricDataProcessor:
                         accuracy_percent = float(row.get("accuracy_percent", 0))
 
                         # Get target period - use the period column (e.g., "1 Month")
-                        period_str = row.get("period", "").strip()
+                        # period_str = row.get("target_period", "").strip()
 
                         # Extract just the number from period (e.g., "1 Month" -> 1)
-                        target_period = 0
-                        if period_str:
-                            # Split by space and take first part
-                            parts = period_str.split()
-                            if parts:
-                                try:
-                                    target_period = int(parts[0])
-                                except ValueError:
-                                    # If not a number, use row number
-                                    target_period = row_num
+                        target_period = int(row.get("target_periods", ""))
+                        # if period_str:
+                        #     # Split by space and take first part
+                        #     parts = period_str.split()
+                        #     if parts:
+                        #         try:
+                        #             target_period = int(parts[0])
+                        #         except ValueError:
+                        #             # If not a number, use row number
+                        #             target_period = row_num
 
                         # Create or update metric record
                         metric, created = MetricData.objects.update_or_create(

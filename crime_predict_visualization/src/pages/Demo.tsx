@@ -67,15 +67,10 @@ export default function CrimePredictionMap() {
       const gridDataResponse = await crimePredictionAPI.fetchTopPredictions(selectedPeriod);
       setGridData(gridDataResponse);
 
-      // Fetch metrics for this period - convert YYYYMM to period number
-      // Assuming: 202302 -> 1, 202303 -> 2, 202304 -> 3
-      let metricPeriod = 1; // default
-      if (selectedPeriod === 202302) metricPeriod = 1;
-      else if (selectedPeriod === 202303) metricPeriod = 2;
-      else if (selectedPeriod === 202304) metricPeriod = 3;
+
 
       try {
-        const metricsResponse = await crimePredictionAPI.fetchMetricsByPeriod(metricPeriod);
+        const metricsResponse = await crimePredictionAPI.fetchMetricsByPeriod(selectedPeriod);
         setMetricsData(metricsResponse);
       } catch (metricsErr) {
         console.log('Metrics not available for this period:', metricsErr);

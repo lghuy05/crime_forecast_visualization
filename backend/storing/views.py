@@ -1,3 +1,4 @@
+from enum import unique
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -199,7 +200,8 @@ def get_metrics_by_period(request):
             )
 
         try:
-            period_int = int(period)
+            period_clean = str(period).replace(",", "")
+            period_int = int(period_clean)
         except ValueError:
             return Response(
                 {
@@ -211,7 +213,14 @@ def get_metrics_by_period(request):
 
         # Get all metrics for the specified period
         metrics = MetricData.objects.filter(target_period=period_int).order_by("model")
-
+        try:
+            # If your database actually stores integers with commas, you might need to filter differently
+            # This is a workaround if the database stores formatted strings
+            metrics = MetricData.objects.filter(
+                target_period__icontains=str(period_int)
+            ).order_by("model")
+        except:
+            pass
         # Separate MLP and Baseline metrics
         mlp_metrics = metrics.filter(model__icontains="mlp").first()
         baseline_metrics = metrics.filter(model__icontains="Lee Algorithm").first()
@@ -319,34 +328,74 @@ def get_available_periods(request):
     """
     try:
         # Get all unique periods from the MetricData table
-        periods = (
-            MetricData.objects.values_list("target_period", flat=True)
-            .distinct()
-            .order_by("target_period")
-        )
+        periods = MetricData.objects.all().order_by("target_period")
+        unique_periods = set()
+        for metric in periods:
+            period_value = metric.target_period
 
+            # If it's a string with a comma, convert to integer
+            if isinstance(period_value, str):
+                try:
+                    # Remove comma and convert to int
+                    period_clean = int(period_value.replace(",", ""))
+                    unique_periods.add(period_clean)
+                except ValueError:
+                    # If conversion fails, try as is
+                    try:
+                        unique_periods.add(int(period_value))
+                    except:
+                        pass
+            else:
+                # Already an integer
+                unique_periods.add(period_value)
+
+        # Sort periods
+        sorted_periods = sorted(list(unique_periods))
         # Also get the model names for each period
         periods_with_models = []
-        for period in periods:
-            models_in_period = (
-                MetricData.objects.filter(target_period=period)
-                .values_list("model", flat=True)
-                .distinct()
+        for period in sorted_periods:
+            period_str = str(period)
+            period_with_comma = (
+                f"{period_str[:3]},{period_str[3:]}"
+                if len(period_str) == 6
+                else period_str
             )
+
+            # Try to find metrics with this period (handling both formats)
+            models_in_period = []
+
+            # Try exact match
+            exact_match = MetricData.objects.filter(target_period=period)
+            if exact_match.exists():
+                models_in_period = list(
+                    exact_match.values_list("model", flat=True).distinct()
+                )
+            else:
+                # Try string match for comma format
+                str_match = MetricData.objects.filter(
+                    target_period__contains=str(period)
+                )
+                if str_match.exists():
+                    models_in_period = list(
+                        str_match.values_list("model", flat=True).distinct()
+                    )
+
             periods_with_models.append(
                 {
                     "period": period,
-                    "available_models": list(models_in_period),
-                    "period_label": f"Period {period}" if period <= 12 else str(period),
+                    "available_models": list(
+                        set(models_in_period)
+                    ),  # Remove duplicates
+                    "period_label": f"Period {period_str}",
                 }
             )
 
         return Response(
             {
                 "success": True,
-                "periods": list(periods),
+                "periods": sorted_periods,
                 "periods_detail": periods_with_models,
-                "count": len(periods),
+                "count": len(sorted_periods),
             }
         )
 
