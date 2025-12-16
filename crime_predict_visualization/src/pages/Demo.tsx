@@ -1,4 +1,4 @@
-// Demo.tsx - WITH METRICS ADDED
+// GridVisualizationPage.tsx - SIMPLIFIED VERSION
 import React, { useState, useEffect, useCallback } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Rectangle, LayersControl, LayerGroup, Tooltip, Popup } from 'react-leaflet';
@@ -28,10 +28,17 @@ const MODEL_CONFIG = {
 // Default center (Sarasota)
 const SARASOTA_CENTER: [number, number] = [27.3364, -82.5307];
 
-export default function CrimePredictionMap() {
+// Grid overlay configuration
+interface GridCell {
+  id: string;
+  bounds: LatLngBoundsExpression;
+  center: [number, number];
+}
+
+export default function GridVisualizationPage() {
   // State for data and UI
   const [gridData, setGridData] = useState<ApiResponse | null>(null);
-  const [metricsData, setMetricsData] = useState<MetricsResponse | null>(null); // Added metrics state
+  const [metricsData, setMetricsData] = useState<MetricsResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [activeModels, setActiveModels] = useState<Record<ModelType, boolean>>({
@@ -40,8 +47,13 @@ export default function CrimePredictionMap() {
     baseline: true,
   });
   const [selectedPeriod, setSelectedPeriod] = useState<number>(202302);
-  const [availablePeriods, setAvailablePeriods] = useState<number[]>([202302, 202303, 202304]); // Hardcoded for now
+  const [availablePeriods, setAvailablePeriods] = useState<number[]>([202302, 202303, 202304]);
   const [apiHealth, setApiHealth] = useState<boolean>(true);
+
+  // Grid overlay states
+  const [showBaseGrid, setShowBaseGrid] = useState<boolean>(true);
+  const [baseGridCells, setBaseGridCells] = useState<GridCell[]>([]);
+  const [gridOpacity, setGridOpacity] = useState<number>(0.2);
 
   // Check API health on mount
   useEffect(() => {
@@ -67,14 +79,11 @@ export default function CrimePredictionMap() {
       const gridDataResponse = await crimePredictionAPI.fetchTopPredictions(selectedPeriod);
       setGridData(gridDataResponse);
 
-
-
       try {
         const metricsResponse = await crimePredictionAPI.fetchMetricsByPeriod(selectedPeriod);
         setMetricsData(metricsResponse);
       } catch (metricsErr) {
         console.log('Metrics not available for this period:', metricsErr);
-        // Don't set error, just leave metrics as null
       }
 
     } catch (err) {
@@ -85,6 +94,55 @@ export default function CrimePredictionMap() {
       setLoading(false);
     }
   }, [selectedPeriod, apiHealth]);
+
+  // Generate base grid overlay
+  const generateBaseGrid = useCallback(() => {
+    const cells: GridCell[] = [];
+    const FEET_PER_DEGREE_LAT = 366666;
+    const GRID_SIZE_FEET = 500;
+
+    // Starting reference point (from your grid #1427)
+    const refSouthwestLat = 27.35500957977851;
+    const refSouthwestLng = -82.5308827385306;
+
+    // Calculate grid size in degrees
+    const gridSizeDegLat = GRID_SIZE_FEET / FEET_PER_DEGREE_LAT;
+
+    // Center latitude for longitude calculation
+    const centerLat = SARASOTA_CENTER[0];
+    const feetPerDegreeLng = FEET_PER_DEGREE_LAT * Math.cos(centerLat * Math.PI / 180);
+    const gridSizeDegLng = GRID_SIZE_FEET / feetPerDegreeLng;
+
+    // Number of rows and columns (cover about 5 mile radius)
+    const NUM_ROWS = 50;
+    const NUM_COLS = 50;
+
+    // Generate grid cells
+    for (let row = 0; row < NUM_ROWS; row++) {
+      for (let col = 0; col < NUM_COLS; col++) {
+        const lat = refSouthwestLat + (row * gridSizeDegLat) - (NUM_ROWS / 2 * gridSizeDegLat);
+        const lng = refSouthwestLng + (col * gridSizeDegLng) - (NUM_COLS / 2 * gridSizeDegLng);
+
+        const southwest: [number, number] = [lat, lng];
+        const northeast: [number, number] = [lat + gridSizeDegLat, lng + gridSizeDegLng];
+        const center: [number, number] = [lat + gridSizeDegLat / 2, lng + gridSizeDegLng / 2];
+
+        cells.push({
+          id: `grid_${row}_${col}`,
+          bounds: [southwest, northeast],
+          center,
+        });
+      }
+    }
+
+    return cells;
+  }, []);
+
+  // Initialize base grid
+  useEffect(() => {
+    const cells = generateBaseGrid();
+    setBaseGridCells(cells);
+  }, [generateBaseGrid]);
 
   // Fetch data when period changes
   useEffect(() => {
@@ -163,6 +221,29 @@ export default function CrimePredictionMap() {
     );
   }, [metricsData]);
 
+  // Render base grid overlay
+  const renderBaseGridOverlay = useCallback(() => {
+    if (!showBaseGrid || baseGridCells.length === 0) return null;
+
+    return (
+      <LayerGroup key="base-grid-overlay">
+        {baseGridCells.map((cell) => (
+          <Rectangle
+            key={cell.id}
+            bounds={cell.bounds}
+            pathOptions={{
+              color: '#666666',
+              weight: 0.3,
+              fillColor: '#4A5568',
+              fillOpacity: gridOpacity,
+              className: 'base-grid-cell'
+            }}
+          />
+        ))}
+      </LayerGroup>
+    );
+  }, [showBaseGrid, baseGridCells, gridOpacity]);
+
   // Render grid rectangles for a specific model
   const renderModelGrids = useCallback((model: ModelType) => {
     if (!gridData || !activeModels[model]) return null;
@@ -172,28 +253,28 @@ export default function CrimePredictionMap() {
     const stats = calculateModelStats(model);
 
     return (
-      <LayerGroup key={model}> {/* Added key here */}
+      <LayerGroup key={model}>
         {grids.map((grid) => (
           <Rectangle
             key={`${model}-${grid.grid_id}`}
             bounds={getGridBounds(grid)}
             pathOptions={{
               color: getColorIntensity(grid.rank, model),
-              weight: 1,
-              fillOpacity: 0.6,
+              weight: 1.5,
+              fillOpacity: 0.7,
               dashArray: model === 'baseline' ? '5, 5' : undefined,
             }}
             eventHandlers={{
               mouseover: (e) => {
                 e.target.setStyle({
-                  weight: 3,
-                  fillOpacity: 0.8,
+                  weight: 2.5,
+                  fillOpacity: 0.9,
                 });
               },
               mouseout: (e) => {
                 e.target.setStyle({
-                  weight: 1,
-                  fillOpacity: 0.6,
+                  weight: 1.5,
+                  fillOpacity: 0.7,
                 });
               },
             }}
@@ -237,14 +318,6 @@ export default function CrimePredictionMap() {
                   <div className="flex justify-between">
                     <span className="font-semibold">Period:</span>
                     <span>{grid.target_period}</span>
-                  </div>
-                  <div className="pt-2 border-t">
-                    <div className="font-semibold mb-1">Coordinates:</div>
-                    <div className="text-xs space-y-1">
-                      <div>SW: {grid.southwest_lat.toFixed(6)}, {grid.southwest_lng.toFixed(6)}</div>
-                      <div>NE: {grid.northeast_lat.toFixed(6)}, {grid.northeast_lng.toFixed(6)}</div>
-                      <div>Center: {grid.center_latitude.toFixed(6)}, {grid.center_longitude.toFixed(6)}</div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -384,10 +457,10 @@ export default function CrimePredictionMap() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold mb-2">
-                🗺️ Sarasota Crime Prediction Hotspots
+                🗺️ Crime Grid Visualization
               </h1>
               <p className="text-gray-300">
-                Interactive map showing top 50 predicted crime grids across three models
+                500ft grids with crime prediction overlay
               </p>
             </div>
             <div className="text-right">
@@ -406,7 +479,7 @@ export default function CrimePredictionMap() {
             <div className="flex flex-wrap gap-2">
               {availablePeriods.map((period) => (
                 <button
-                  key={period} // ADDED KEY
+                  key={period}
                   onClick={() => setSelectedPeriod(period)}
                   className={`px-3 py-1.5 rounded text-sm transition-all ${selectedPeriod === period
                     ? 'bg-blue-600 ring-2 ring-blue-400'
@@ -438,9 +511,46 @@ export default function CrimePredictionMap() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar Controls */}
         <aside className="w-80 p-6 border-r border-gray-700 bg-gray-800/50 overflow-y-auto">
-          <h2 className="text-xl font-bold mb-6">📊 Model Controls</h2>
+          <h2 className="text-xl font-bold mb-6">📊 Visualization Controls</h2>
 
-          {/* Metrics Display - NEW SECTION */}
+          {/* Grid Overlay Controls */}
+          <div className="mb-6 p-4 bg-gray-900/50 rounded-lg border border-gray-600">
+            <h3 className="font-bold mb-3">🗺️ Grid Settings</h3>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Show Base Grid</span>
+                <button
+                  onClick={() => setShowBaseGrid(!showBaseGrid)}
+                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${showBaseGrid ? 'bg-blue-500 justify-end' : 'bg-gray-600 justify-start'
+                    }`}
+                >
+                  <div className="w-4 h-4 bg-white rounded-full shadow-md" />
+                </button>
+              </div>
+
+              <div>
+                <label className="text-sm block mb-2">Grid Opacity: {gridOpacity.toFixed(1)}</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={gridOpacity}
+                  onChange={(e) => setGridOpacity(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+
+              <div className="text-xs text-gray-400 pt-2 border-t border-gray-700">
+                <div>• Base grid shows 500ft × 500ft cells</div>
+                <div>• Grids generated from reference point</div>
+                <div>• Some crime grids may not align perfectly</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Metrics Display */}
           {renderMetricsDisplay()}
 
           {/* Toggle All Buttons */}
@@ -450,14 +560,14 @@ export default function CrimePredictionMap() {
               className="w-full py-2.5 bg-green-700 hover:bg-green-600 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
               <span>✓</span>
-              <span>Show All Models</span>
+              <span>Show All Crime Grids</span>
             </button>
             <button
               onClick={() => toggleAllModels(false)}
               className="w-full py-2.5 bg-red-700 hover:bg-red-600 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
               <span>✕</span>
-              <span>Hide All Models</span>
+              <span>Hide All Crime Grids</span>
             </button>
           </div>
 
@@ -471,7 +581,7 @@ export default function CrimePredictionMap() {
 
               return (
                 <div
-                  key={model} // ADDED KEY
+                  key={model}
                   className={`p-4 rounded-lg border-2 transition-all cursor-pointer hover:bg-gray-700/30 ${isActive ? 'border-opacity-100' : 'border-opacity-30'
                     }`}
                   style={{ borderColor: config.color }}
@@ -523,10 +633,6 @@ export default function CrimePredictionMap() {
                         <span className="text-gray-400">Average:</span>
                         <span className="font-semibold">{stats.avg.toFixed(1)}</span>
                       </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-gray-400">Total:</span>
-                        <span className="font-semibold">{stats.total.toLocaleString()}</span>
-                      </div>
                     </div>
                   )}
                 </div>
@@ -550,42 +656,12 @@ export default function CrimePredictionMap() {
                 <div className="w-4 h-4 bg-[#FFD166] mr-2 rounded" />
                 <span className="text-sm">Baseline Predictions</span>
               </div>
-              <div className="mt-3 pt-3 border-t border-gray-700 text-xs text-gray-400 space-y-1">
-                <div>• <span className="font-semibold">Darker colors</span> = Higher rank (more crime)</div>
-                <div>• <span className="font-semibold">Dashed borders</span> = Baseline predictions</div>
-                <div>• <span className="font-semibold">Hover</span> over grids for quick info</div>
-                <div>• <span className="font-semibold">Click</span> grids for detailed popup</div>
-                <div>• <span className="font-semibold">PEI</span> = Predictive Efficiency Index</div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 border border-gray-500 bg-gray-800 mr-2 rounded" />
+                <span className="text-sm">Base Grid (500ft)</span>
               </div>
             </div>
           </div>
-
-          {/* Data Summary */}
-          {gridData && (
-            <div className="mt-6 p-4 bg-blue-900/20 rounded-lg border border-blue-700/30">
-              <h3 className="font-bold mb-2 text-blue-300">Data Summary</h3>
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span>Period:</span>
-                  <span className="font-semibold">{gridData.period}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>API Status:</span>
-                  <span className="font-semibold text-green-400">Success</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Total Models:</span>
-                  <span className="font-semibold">{metricsData?.count || 2}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Last Updated:</span>
-                  <span className="font-semibold">
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
         </aside>
 
         {/* Main Map Area */}
@@ -620,98 +696,27 @@ export default function CrimePredictionMap() {
                     attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
                   />
                 </LayersControl.BaseLayer>
-              </LayersControl>
 
-              {/* Render all active model grids */}
-              {(Object.keys(MODEL_CONFIG) as ModelType[]).map(model =>
-                activeModels[model] ? renderModelGrids(model) : null
-              )}
+                {/* Grid Overlay Layer Control */}
+                <LayersControl.Overlay checked={showBaseGrid} name="Base Grid">
+                  {renderBaseGridOverlay()}
+                </LayersControl.Overlay>
+
+                {/* Model Layers */}
+                <LayersControl.Overlay checked={activeModels.actual} name="Actual Crimes">
+                  {renderModelGrids('actual')}
+                </LayersControl.Overlay>
+
+                <LayersControl.Overlay checked={activeModels.mlp} name="MLP Predictions">
+                  {renderModelGrids('mlp')}
+                </LayersControl.Overlay>
+
+                <LayersControl.Overlay checked={activeModels.baseline} name="Baseline Predictions">
+                  {renderModelGrids('baseline')}
+                </LayersControl.Overlay>
+              </LayersControl>
             </MapContainer>
           </div>
-
-          {/* Footer Stats */}
-          <footer className="p-4 border-t border-gray-700 bg-gray-900/50">
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {modelEntries.map(([model, config]) => {
-                  const count = gridData?.counts[model] || 0;
-                  const stats = calculateModelStats(model);
-                  const modelMetric = getModelMetric(config.name.replace(' Predictions', ''));
-
-                  return (
-                    <div
-                      key={model} // ADDED KEY
-                      className="p-3 rounded-lg bg-gray-800/50 border-l-4"
-                      style={{ borderLeftColor: config.color }}
-                    >
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-semibold">{config.name}</span>
-                        <span className="text-xs px-2 py-1 rounded bg-gray-700">
-                          {count} grids
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-400 space-y-1">
-                        {modelMetric && (
-                          <>
-                            <div className="flex justify-between">
-                              <span>PEI:</span>
-                              <span className="font-semibold text-green-400">{modelMetric.pei_percent.toFixed(1)}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Accuracy:</span>
-                              <span className="font-semibold text-blue-400">{modelMetric.accuracy.toFixed(1)}%</span>
-                            </div>
-                          </>
-                        )}
-                        <div className="flex justify-between">
-                          <span>Max:</span>
-                          <span className="font-semibold">{stats.max.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Avg:</span>
-                          <span className="font-semibold">{stats.avg.toFixed(1)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Performance Winner */}
-                {metricsData?.comparison && (
-                  <div className="p-3 rounded-lg bg-gray-800/50 border-l-4 border-purple-500">
-                    <div className="text-sm font-semibold mb-2 text-purple-300">🏆 Best Performer</div>
-                    <div className="text-xs text-gray-400 space-y-2">
-                      <div>
-                        <div className="text-gray-300 mb-1">PEI:</div>
-                        <div className="font-bold" style={{
-                          color: metricsData.comparison.pei.winner === 'MLP' ? '#4ECDC4' : '#FFD166'
-                        }}>
-                          {metricsData.comparison.pei.winner} (+{metricsData.comparison.pei.difference}%)
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-300 mb-1">Accuracy:</div>
-                        <div className="font-bold" style={{
-                          color: metricsData.comparison.accuracy.winner === 'MLP' ? '#4ECDC4' : '#FFD166'
-                        }}>
-                          {metricsData.comparison.accuracy.winner} (+{metricsData.comparison.accuracy.difference}%)
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="p-3 rounded-lg bg-gray-800/50">
-                  <div className="text-sm font-semibold mb-1">Map Controls</div>
-                  <div className="text-xs text-gray-400 space-y-1">
-                    <div>• Scroll to zoom in/out</div>
-                    <div>• Drag to pan map</div>
-                    <div>• Use layer control (top-right)</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </footer>
         </main>
       </div>
     </div>

@@ -18,7 +18,7 @@ def call_endpoint_map(request):
     if request.method == "POST" or request.method == "GET":
         data = {
             "model": "mlp",
-            "model_data_path": "data/mlp/results/sarasota_all_monthly_500_grid-id_20251211_202709_202303/grid_ranking.csv",
+            "model_data_path": "data/mlp/results/sarasota_all_monthly_500_grid-id_20251215_172050_202304/grid_ranking.csv",
             # "model_data_path": "data/baseline/grid_ranking.csv",
             "coordinate_path": "coordinate/coordinate.csv",
         }

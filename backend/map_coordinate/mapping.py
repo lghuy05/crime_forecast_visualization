@@ -27,14 +27,14 @@ def get_extracted_data_model(
 
 
 def calculate_grid_bounds(
-    center_lat: float, center_lng: float, grid_size_meters: float = 500
+    center_lat: float, center_lng: float, grid_size_feet: float = 500
 ) -> dict:
     # Constants
-    METERS_PER_DEGREE_LAT = 111111  # Approximately 111.111 km per degree latitude
-    meters_per_degree_lng = METERS_PER_DEGREE_LAT * math.cos(math.radians(center_lat))
+    FEET_PER_DEGREE_LAT = 366666  # Approximately 111.111 km per degree latitude
+    feet_per_degree_lng = FEET_PER_DEGREE_LAT * math.cos(math.radians(center_lat))
 
-    half_grid_lat = grid_size_meters / 2 / METERS_PER_DEGREE_LAT
-    half_grid_lng = grid_size_meters / 2 / meters_per_degree_lng
+    half_grid_lat = grid_size_feet / 2 / FEET_PER_DEGREE_LAT
+    half_grid_lng = grid_size_feet / 2 / feet_per_degree_lng
 
     # Calculate all four corners
     southwest = (center_lat - half_grid_lat, center_lng - half_grid_lng)

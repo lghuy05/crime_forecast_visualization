@@ -1,0 +1,2 @@
+dataset,model,temporal,grid_size,tie_breaking,target_periods,period,pei_percent,accuracy_percent
+Sarasota_all,MLP,Monthly,500m,Grid Id,202304,1 Month,70.6,50.0
