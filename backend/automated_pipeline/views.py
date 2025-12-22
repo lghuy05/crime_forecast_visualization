@@ -1,9 +1,6 @@
 from django.shortcuts import render
 import requests
-import json
-from pathlib import Path
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 # config
 ENDPOINT_map_URL = "http://localhost:8000/mapping/run-mapping/"

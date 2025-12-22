@@ -1,8 +1,5 @@
-from enum import unique
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from .models import ActualCrime, MLPPrediction, BaselinePrediction, MetricData
 from .serializers import (
@@ -16,7 +13,6 @@ import os
 
 
 @api_view(["GET"])
-@csrf_exempt  # This can stay but might not be needed
 def api_health(request):
     """Health check endpoint for React frontend"""
     return Response(

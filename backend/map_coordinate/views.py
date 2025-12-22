@@ -1,14 +1,10 @@
-from requests import exceptions
 from django.shortcuts import render
 from django.http import JsonResponse
 
 # Create your views here.
 from .mapping import mapping_coordinate
-from pathlib import Path
 import json
 from django.views.decorators.csrf import csrf_exempt
-from pathlib import Path
-import traceback
 
 
 def home_view(request):
