@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { BarChart3, Cpu, Map, Target, TrendingUp, Shield, Globe, Clock } from 'lucide-react';
 
 // ============================================
 // 1. TIMELINE COMPONENT (with hover expansion)

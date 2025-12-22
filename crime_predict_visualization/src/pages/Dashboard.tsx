@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../auth/context/AuthContext';
+import { useAuth } from '../auth/hooks/useAuth';
 import { dashboardStyles } from '../styling/DashboardStyles';
 
 const Dashboard: React.FC = () => {

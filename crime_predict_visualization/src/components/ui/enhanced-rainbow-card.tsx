@@ -21,7 +21,7 @@ export const EnhancedRainbowCard: React.FC<EnhancedRainbowCardProps> = ({
   targetPage = "/ourwork", // Default to OurWork page
   targetSection = "" // Default to no specific section
 }) => {
-  const handleViewDetail = (e: React.MouseEvent) => {
+  const handleViewDetail = () => {
     // If there's a specific section, we need to store it for navigation
     if (targetSection) {
       sessionStorage.setItem('scrollToSection', targetSection);

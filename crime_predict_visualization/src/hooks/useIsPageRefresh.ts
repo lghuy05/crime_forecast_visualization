@@ -2,18 +2,16 @@ import { useState, useEffect } from 'react';
 
 // Custom hook to detect page refresh (simplified)
 export const useIsPageRefresh = () => {
-  const [isRefresh, setIsRefresh] = useState(true);
+  const [isRefresh] = useState(() => {
+    const hasLoaded = sessionStorage.getItem('homePageLoaded');
+    return !hasLoaded;
+  });
 
   useEffect(() => {
-    const hasLoaded = sessionStorage.getItem('homePageLoaded');
-
-    if (hasLoaded) {
-      setIsRefresh(false);
-    } else {
-      // Use a short timeout to ensure this runs after the initial render cycle
-      setTimeout(() => sessionStorage.setItem('homePageLoaded', 'true'), 100);
+    if (isRefresh) {
+      sessionStorage.setItem('homePageLoaded', 'true');
     }
-  }, []);
+  }, [isRefresh]);
 
   return isRefresh;
 };

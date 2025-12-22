@@ -28,7 +28,6 @@ const CountUpNumber: React.FC<{
 
   useEffect(() => {
     if (!isInView) {
-      setCount(0);
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
@@ -76,6 +75,7 @@ export const AnimatedStats: React.FC<AnimatedStatsProps> = ({ stats, className }
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const controls = useAnimation();
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (isInView && !hasAnimated) {
@@ -119,15 +119,15 @@ export const AnimatedStats: React.FC<AnimatedStatsProps> = ({ stats, className }
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
-          const [isHovered, setIsHovered] = useState(false);
+          const isHovered = hoveredIndex === index;
 
           return (
             <motion.div
               key={index}
               variants={itemVariants}
               className="relative h-full cursor-pointer"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
               animate={isHovered ? {
                 scale: 1.05,
                 y: -8,

@@ -4,7 +4,15 @@ import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Rectangle, LayersControl, LayerGroup, Tooltip, Popup } from 'react-leaflet';
 import { LatLngBoundsExpression } from 'leaflet';
 import { crimePredictionAPI } from '../api';
-import type { ModelType, ApiResponse, MetricsResponse } from '../api';
+import type {
+  ModelType,
+  ApiResponse,
+  MetricsResponse,
+  CrimeGrid,
+  ActualCrimeGrid,
+  MLPCrimeGrid,
+  BaselineCrimeGrid
+} from '../api';
 
 // Model configuration
 const MODEL_CONFIG = {
@@ -47,7 +55,7 @@ export default function GridVisualizationPage() {
     baseline: true,
   });
   const [selectedPeriod, setSelectedPeriod] = useState<number>(202302);
-  const [availablePeriods, setAvailablePeriods] = useState<number[]>([202302, 202303, 202304]);
+  const availablePeriods = [202302, 202303, 202304];
   const [apiHealth, setApiHealth] = useState<boolean>(true);
 
   // Grid overlay states
@@ -167,7 +175,7 @@ export default function GridVisualizationPage() {
   };
 
   // Calculate grid bounds for Leaflet
-  const getGridBounds = useCallback((grid: any): LatLngBoundsExpression => {
+  const getGridBounds = useCallback((grid: CrimeGrid): LatLngBoundsExpression => {
     return [
       [grid.southwest_lat, grid.southwest_lng],
       [grid.northeast_lat, grid.northeast_lng]
@@ -175,13 +183,16 @@ export default function GridVisualizationPage() {
   }, []);
 
   // Get crime count for a grid based on model type
-  const getCrimeCount = useCallback((grid: any, model: ModelType): number => {
+  const getCrimeCount = useCallback((
+    grid: ActualCrimeGrid | MLPCrimeGrid | BaselineCrimeGrid,
+    model: ModelType
+  ): number => {
     if (model === 'actual') {
-      return grid.actual_crime_count;
+      return (grid as ActualCrimeGrid).actual_crime_count;
     } else if (model === 'mlp') {
-      return grid.mlp_crime_count;
+      return (grid as MLPCrimeGrid).mlp_crime_count;
     } else {
-      return grid.baseline_predicted_count;
+      return (grid as BaselineCrimeGrid).baseline_predicted_count;
     }
   }, []);
 
@@ -250,8 +261,6 @@ export default function GridVisualizationPage() {
 
     const grids = gridData.data[model];
     const config = MODEL_CONFIG[model];
-    const stats = calculateModelStats(model);
-
     return (
       <LayerGroup key={model}>
         {grids.map((grid) => (
@@ -340,25 +349,9 @@ export default function GridVisualizationPage() {
 
     return (
       <div className="mb-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-        <h2 className="text-xl font-bold mb-4">📈 Model Performance</h2>
+        <h2 className="text-xl font-bold mb-4">Model Performance</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {mlpMetric && (
-            <div className="p-3 rounded-lg" style={{ backgroundColor: `${mlpMetric.color}20`, borderLeft: `4px solid ${mlpMetric.color}` }}>
-              <h3 className="font-bold mb-2" style={{ color: mlpMetric.color }}>{mlpMetric.model_display}</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>PEI:</span>
-                  <span className="font-bold text-lg">{mlpMetric.pei_percent.toFixed(1)}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Accuracy:</span>
-                  <span className="font-bold text-lg">{mlpMetric.accuracy.toFixed(1)}%</span>
-                </div>
-              </div>
-            </div>
-          )}
-
+        <div className="grid grid-cols-1 gap-4 mb-4">
           {baselineMetric && (
             <div className="p-3 rounded-lg" style={{ backgroundColor: `${baselineMetric.color}20`, borderLeft: `4px solid ${baselineMetric.color}` }}>
               <h3 className="font-bold mb-2" style={{ color: baselineMetric.color }}>{baselineMetric.model_display}</h3>
@@ -374,11 +367,27 @@ export default function GridVisualizationPage() {
               </div>
             </div>
           )}
+
+          {mlpMetric && (
+            <div className="p-3 rounded-lg" style={{ backgroundColor: `${mlpMetric.color}20`, borderLeft: `4px solid ${mlpMetric.color}` }}>
+              <h3 className="font-bold mb-2" style={{ color: mlpMetric.color }}>{mlpMetric.model_display}</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>PEI:</span>
+                  <span className="font-bold text-lg">{mlpMetric.pei_percent.toFixed(1)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Accuracy:</span>
+                  <span className="font-bold text-lg">{mlpMetric.accuracy.toFixed(1)}%</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {comparison && mlpMetric && baselineMetric && (
           <div className="p-3 bg-gray-900/50 rounded-lg">
-            <h4 className="font-bold mb-3 text-center">🎯 Comparison</h4>
+            <h4 className="font-bold mb-3 text-center">Comparison</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="text-center p-3 rounded-lg bg-gray-800/50">
                 <div className="text-sm text-gray-400 mb-1">PEI</div>
@@ -410,7 +419,7 @@ export default function GridVisualizationPage() {
         </div>
         {!apiHealth && (
           <div className="mt-4 text-yellow-400 text-sm">
-            ⚠️ Waiting for API connection...
+            Waiting for API connection...
           </div>
         )}
       </div>
@@ -421,7 +430,7 @@ export default function GridVisualizationPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4">
         <div className="bg-red-900/30 border border-red-700 rounded-lg p-6 max-w-lg">
-          <div className="text-red-400 text-2xl mb-3">❌ Error</div>
+          <div className="text-red-400 text-2xl mb-3">Error</div>
           <div className="text-white mb-4">{error}</div>
           <div className="space-y-3">
             <button
@@ -438,7 +447,7 @@ export default function GridVisualizationPage() {
             </button>
           </div>
           <div className="mt-4 text-sm text-gray-400">
-            <div>API Status: {apiHealth ? '✅ Connected' : '❌ Disconnected'}</div>
+            <div>API Status: {apiHealth ? 'Connected' : 'Disconnected'}</div>
             <div>Current Period: {selectedPeriod}</div>
           </div>
         </div>
@@ -457,7 +466,7 @@ export default function GridVisualizationPage() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold mb-2">
-                🗺️ Crime Grid Visualization
+                Crime Grid Visualization
               </h1>
               <p className="text-gray-300">
                 500ft grids with crime prediction overlay
@@ -465,7 +474,7 @@ export default function GridVisualizationPage() {
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-400">
-                API Status: {apiHealth ? '✅ Connected' : '⚠️ Checking...'}
+                API Status: {apiHealth ? 'Connected' : 'Checking...'}
               </div>
               <div className="text-sm text-gray-400">
                 Data Period: {gridData?.period || selectedPeriod}
@@ -511,11 +520,11 @@ export default function GridVisualizationPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar Controls */}
         <aside className="w-80 p-6 border-r border-gray-700 bg-gray-800/50 overflow-y-auto">
-          <h2 className="text-xl font-bold mb-6">📊 Visualization Controls</h2>
+          <h2 className="text-xl font-bold mb-6">Visualization Controls</h2>
 
           {/* Grid Overlay Controls */}
           <div className="mb-6 p-4 bg-gray-900/50 rounded-lg border border-gray-600">
-            <h3 className="font-bold mb-3">🗺️ Grid Settings</h3>
+            <h3 className="font-bold mb-3">Grid Settings</h3>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -559,14 +568,14 @@ export default function GridVisualizationPage() {
               onClick={() => toggleAllModels(true)}
               className="w-full py-2.5 bg-green-700 hover:bg-green-600 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
-              <span>✓</span>
+              <span>Show</span>
               <span>Show All Crime Grids</span>
             </button>
             <button
               onClick={() => toggleAllModels(false)}
               className="w-full py-2.5 bg-red-700 hover:bg-red-600 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
-              <span>✕</span>
+              <span>Hide</span>
               <span>Hide All Crime Grids</span>
             </button>
           </div>

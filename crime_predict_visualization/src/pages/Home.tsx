@@ -9,39 +9,24 @@ import { Timeline } from '../components/ui/timeline';
 
 // Custom hook to detect page refresh (simplified)
 const useShouldShowLoading = () => {
-  const [shouldShow, setShouldShow] = useState(true);
-
-  useEffect(() => {
-    // Check if we JUST navigated from another page
-    const navigationEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+  const [shouldShow] = useState(() => {
+    const navigationEntry = performance.getEntriesByType("navigation")[0] as
+      | PerformanceNavigationTiming
+      | undefined;
 
     if (navigationEntry) {
-      // Type 1: Page reload/refresh
-      // Type 2: Navigation via back/forward
-      // Type 255: Other
-      const isReload = navigationEntry.type === 'reload';
-
-      if (isReload) {
-        // Page was refreshed - show loading
-        setShouldShow(true);
-      } else {
-        // Normal navigation - don't show loading
-        setShouldShow(false);
-      }
-    } else {
-      // Fallback: Check if this is the first page load
-      const firstLoad = sessionStorage.getItem('firstHomeLoad');
-
-      if (!firstLoad) {
-        // First time ever loading the app
-        sessionStorage.setItem('firstHomeLoad', 'true');
-        setShouldShow(true);
-      } else {
-        // Already loaded before, likely navigation
-        setShouldShow(false);
-      }
+      return navigationEntry.type === "reload";
     }
-  }, []);
+
+    const firstLoad = sessionStorage.getItem("firstHomeLoad");
+    return !firstLoad;
+  });
+
+  useEffect(() => {
+    if (shouldShow) {
+      sessionStorage.setItem("firstHomeLoad", "true");
+    }
+  }, [shouldShow]);
 
   return shouldShow;
 };

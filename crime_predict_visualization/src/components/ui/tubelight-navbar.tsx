@@ -1,18 +1,17 @@
 
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { motion } from "framer-motion"
 import { Link, useLocation } from "react-router-dom"
-import { Home } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
-const cn = (...classes: any[]) => classes.filter(Boolean).join(" ")
-
-type IconType = typeof Home
+const cn = (...classes: Array<string | false | null | undefined>) =>
+  classes.filter(Boolean).join(" ")
 
 interface NavBarProps {
   items: Array<{
     name: string
     url: string
-    icon: any
+    icon: LucideIcon
   }>
   className?: string
 }
@@ -20,14 +19,6 @@ interface NavBarProps {
 export function NavBar({ items, className }: NavBarProps) {
   const location = useLocation()
   const [activeTab, setActiveTab] = useState(location.pathname)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768)
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
 
   const handleNavigation = (url: string) => {
     setActiveTab(url)

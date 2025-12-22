@@ -2,7 +2,8 @@
 import { memo, useCallback, useEffect, useRef } from "react";
 
 // Simple cn utility
-const cn = (...classes: any[]) => classes.filter(Boolean).join(" ");
+const cn = (...classes: Array<string | false | null | undefined>) =>
+  classes.filter(Boolean).join(" ");
 
 interface GlowingEffectProps {
   blur?: number;
@@ -100,7 +101,8 @@ const GlowingEffect = memo(
 
       // Gentle auto-rotation when no mouse movement
       const autoRotate = () => {
-        angleRef.current += 0.2;
+        const speedFactor = Math.max(0.25, movementDuration);
+        angleRef.current += 0.4 / speedFactor;
         if (containerRef.current) {
           containerRef.current.style.setProperty("--start", String(angleRef.current));
           containerRef.current.style.setProperty("--active", "1");

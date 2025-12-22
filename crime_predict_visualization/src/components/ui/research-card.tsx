@@ -1,9 +1,6 @@
 import React from "react";
 import { GlowingEffect } from "./glowing-effect";
 
-// Simple cn utility
-const cn = (...classes: any[]) => classes.filter(Boolean).join(" ");
-
 interface ResearchCardGlowProps {
   icon: React.ComponentType<{ className?: string }>;
   title: string;

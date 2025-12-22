@@ -1,73 +1,61 @@
-# React + TypeScript + Vite
+# Crime Forecast Visualization
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interactive web app for exploring spatial-temporal crime predictions, comparing model outputs, and inspecting accuracy metrics over time.
 
-Currently, two official plugins are available:
+## Highlights
+- Map-based grid visualization with model overlays (Actual, MLP, Baseline)
+- Period selector to inspect predictions across time slices
+- Model metrics panel with accuracy/PEI comparisons
+- Research-focused landing and demo experience
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- React 19 + TypeScript + Vite
+- Tailwind CSS
+- Leaflet + React-Leaflet
+- GSAP / Framer Motion
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
+- Node.js 18+ (or a compatible LTS)
+- A running API server at `http://localhost:8000`
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Install
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Run the app
+```bash
+npm run dev
 ```
+
+### Build for production
+```bash
+npm run build
+```
+
+### Preview production build
+```bash
+npm run preview
+```
+
+## API Expectations
+The frontend expects these endpoints from the backend:
+- `GET /api/health/`
+- `GET /api/available-periods/`
+- `GET /api/top-predictions/?period=...`
+- `GET /api/metrics-by-period/?period=...`
+
+Base URL is currently hardcoded in `src/api.ts`.
+
+## Project Structure (key areas)
+- `src/pages/Home.tsx`: landing and research narrative
+- `src/pages/Demo.tsx`: grid visualization + controls
+- `src/api.ts`: API client and data types
+
+## Scripts
+- `npm run dev`: start Vite dev server
+- `npm run build`: typecheck + production build
+- `npm run lint`: ESLint
+- `npm run preview`: preview production build

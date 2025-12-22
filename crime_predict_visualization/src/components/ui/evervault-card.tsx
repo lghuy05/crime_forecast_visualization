@@ -2,7 +2,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-const cn = (...classes: any[]) => classes.filter(Boolean).join(" ");
+const cn = (...classes: Array<string | false | null | undefined>) =>
+  classes.filter(Boolean).join(" ");
 
 const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -29,8 +30,7 @@ export const EvervaultCard: React.FC<EvervaultCardProps> = ({
   icon: Icon,
   label,
 }) => {
-  const mouseX = useRef(0);
-  const mouseY = useRef(0);
+  const [maskPosition, setMaskPosition] = useState({ x: 0, y: 0 });
   const [randomString, setRandomString] = useState("");
   const [count, setCount] = useState(0);
   const [isInView, setIsInView] = useState(false);
@@ -79,8 +79,10 @@ export const EvervaultCard: React.FC<EvervaultCardProps> = ({
 
   function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
-    mouseX.current = e.clientX - rect.left;
-    mouseY.current = e.clientY - rect.top;
+    setMaskPosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
     setRandomString(generateRandomString(1500));
   }
 
@@ -97,8 +99,8 @@ export const EvervaultCard: React.FC<EvervaultCardProps> = ({
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
-          maskImage: `radial-gradient(250px at ${mouseX.current}px ${mouseY.current}px, white, transparent)`,
-          WebkitMaskImage: `radial-gradient(250px at ${mouseX.current}px ${mouseY.current}px, white, transparent)`,
+          maskImage: `radial-gradient(250px at ${maskPosition.x}px ${maskPosition.y}px, white, transparent)`,
+          WebkitMaskImage: `radial-gradient(250px at ${maskPosition.x}px ${maskPosition.y}px, white, transparent)`,
         }}
       />
 
@@ -106,8 +108,8 @@ export const EvervaultCard: React.FC<EvervaultCardProps> = ({
       <motion.div
         className="absolute inset-0 opacity-0 mix-blend-overlay group-hover:opacity-100 transition-opacity duration-500"
         style={{
-          maskImage: `radial-gradient(250px at ${mouseX.current}px ${mouseY.current}px, white, transparent)`,
-          WebkitMaskImage: `radial-gradient(250px at ${mouseX.current}px ${mouseY.current}px, white, transparent)`,
+          maskImage: `radial-gradient(250px at ${maskPosition.x}px ${maskPosition.y}px, white, transparent)`,
+          WebkitMaskImage: `radial-gradient(250px at ${maskPosition.x}px ${maskPosition.y}px, white, transparent)`,
         }}
       >
         <p className="absolute inset-x-0 text-xs h-full break-words whitespace-pre-wrap text-white/20 font-mono font-bold">

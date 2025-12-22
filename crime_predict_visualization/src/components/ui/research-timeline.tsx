@@ -1,6 +1,5 @@
 import { useScroll, useTransform, motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
-import { Lightbulb, Target, Cpu, BarChart3, Map, Users, Zap, GitBranch } from "lucide-react";
 
 interface TimelineEntry {
   title: string;

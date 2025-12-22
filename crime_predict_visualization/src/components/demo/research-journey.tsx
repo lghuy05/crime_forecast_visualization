@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ResearchTimeline } from "../ui/research-timeline";
-import { Lightbulb, Target, Cpu, BarChart3, Zap, GitBranch, Map, Users } from "lucide-react";
+import { Lightbulb, Target, Cpu, BarChart3, Zap, GitBranch } from "lucide-react";
 
 export function ResearchJourney() {
   const timelineData = [

@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const useGSAP = (callback: (gsap: typeof gsap) => void, dependencies: any[] = []) => {
+export const useGSAP = (callback: (gsap: typeof gsap) => void) => {
   const context = useRef<gsap.Context>();
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export const useGSAP = (callback: (gsap: typeof gsap) => void, dependencies: any
     return () => {
       context.current?.revert();
     };
-  }, dependencies);
+  }, [callback]);
 };
 
 export const useScrollAnimation = () => {

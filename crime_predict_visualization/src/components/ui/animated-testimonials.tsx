@@ -1,6 +1,6 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "../../lib/utils";
 
 type Testimonial = {
@@ -21,19 +21,23 @@ export const AnimatedTestimonials = ({
 }) => {
   const [active, setActive] = useState(0);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setActive((prev) => (prev + 1) % testimonials.length);
-  };
+  }, [testimonials.length]);
 
   useEffect(() => {
     if (autoplay) {
       const interval = setInterval(handleNext, 5000);
       return () => clearInterval(interval);
     }
-  }, [autoplay]);
+  }, [autoplay, handleNext]);
 
-  const randomRotateY = () => {
-    return Math.floor(Math.random() * 21) - 10;
+  const rotateForSource = (source: string) => {
+    let hash = 0;
+    for (let i = 0; i < source.length; i += 1) {
+      hash = (hash * 31 + source.charCodeAt(i)) % 360;
+    }
+    return (hash % 21) - 10;
   };
 
   return (
@@ -49,13 +53,13 @@ export const AnimatedTestimonials = ({
                     opacity: 0,
                     scale: 0.9,
                     z: -100,
-                    rotate: randomRotateY(),
+                    rotate: rotateForSource(testimonial.src),
                   }}
                   animate={{
                     opacity: index === active ? 1 : 0.7,
                     scale: index === active ? 1 : 0.95,
                     z: index === active ? 0 : -100,
-                    rotate: index === active ? 0 : randomRotateY(),
+                    rotate: index === active ? 0 : rotateForSource(testimonial.src),
                     zIndex: index === active
                       ? 999
                       : testimonials.length + 2 - index,
@@ -65,7 +69,7 @@ export const AnimatedTestimonials = ({
                     opacity: 0,
                     scale: 0.9,
                     z: 100,
-                    rotate: randomRotateY(),
+                    rotate: rotateForSource(testimonial.src),
                   }}
                   transition={{
                     duration: 0.4,

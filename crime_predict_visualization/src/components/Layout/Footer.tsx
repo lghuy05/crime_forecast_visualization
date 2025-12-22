@@ -11,7 +11,7 @@ const Footer = () => {
               Crime Forecast<span className="text-blue-400"> Research</span>
             </Link>
             <p className="text-white/60 text-sm mt-2">
-              University of South Florida
+              Connected Social Artificial Intelligence Lab
             </p>
           </div>
           <div className="text-center md:text-right">

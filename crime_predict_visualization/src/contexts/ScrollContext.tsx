@@ -1,20 +1,6 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-interface ScrollContextType {
-  scrollY: number;
-  isScrolled: boolean;
-}
-
-const ScrollContext = createContext<ScrollContextType | undefined>(undefined);
-
-export const useScroll = () => {
-  const context = useContext(ScrollContext);
-  if (!context) {
-    throw new Error('useScroll must be used within ScrollProvider');
-  }
-  return context;
-};
+import React, { useEffect, useState } from 'react';
+import { ScrollContext } from './scroll-context';
 
 export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [scrollY, setScrollY] = useState(0);

@@ -6,7 +6,6 @@ interface RainbowCardProps {
   title: string;
   description: string;
   onClick?: () => void;
-  index: number;
 }
 
 export const SimpleRainbowCard: React.FC<RainbowCardProps> = ({
@@ -14,7 +13,6 @@ export const SimpleRainbowCard: React.FC<RainbowCardProps> = ({
   title,
   description,
   onClick,
-  index,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [gradientAngle, setGradientAngle] = useState(0);
