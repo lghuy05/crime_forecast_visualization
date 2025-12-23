@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { ResearchTimeline } from "../ui/research-timeline";
 import { Lightbulb, Target, Cpu, BarChart3, Zap, GitBranch } from "lucide-react";
 

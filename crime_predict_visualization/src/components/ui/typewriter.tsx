@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import { motion, type Variants } from "framer-motion"
 import { cn } from "../../lib/utils"
 
@@ -12,7 +12,7 @@ interface TypewriterProps {
   className?: string
   showCursor?: boolean
   hideCursorOnType?: boolean
-  cursorChar?: string | React.ReactNode
+  cursorChar?: string | ReactNode
   cursorAnimationVariants?: Variants
   cursorClassName?: string
 }
@@ -50,7 +50,7 @@ const Typewriter = ({
   const texts = useMemo(() => (Array.isArray(text) ? text : [text]), [text])
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout
+    let timeout: ReturnType<typeof setTimeout>
 
     const currentText = texts[currentTextIndex]
 

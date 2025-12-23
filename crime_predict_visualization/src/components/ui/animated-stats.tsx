@@ -1,12 +1,12 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, useInView, useAnimation } from 'framer-motion';
+import { useEffect, useRef, useState, type ComponentType, type FC } from 'react';
+import { motion, useInView, useAnimation, type Variants } from 'framer-motion';
 
 interface AnimatedStat {
   label: string;
   value: number;
   suffix: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   color: string;
   duration?: number;
 }
@@ -16,14 +16,14 @@ interface AnimatedStatsProps {
   className?: string;
 }
 
-const CountUpNumber: React.FC<{
+const CountUpNumber: FC<{
   end: number;
   suffix: string;
   duration: number;
   isInView: boolean;
 }> = ({ end, suffix, duration, isInView }) => {
   const [count, setCount] = useState(0);
-  const frameRef = useRef<number>();
+  const frameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -70,7 +70,7 @@ const CountUpNumber: React.FC<{
   );
 };
 
-export const AnimatedStats: React.FC<AnimatedStatsProps> = ({ stats, className }) => {
+export const AnimatedStats: FC<AnimatedStatsProps> = ({ stats, className }) => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const controls = useAnimation();
@@ -84,7 +84,7 @@ export const AnimatedStats: React.FC<AnimatedStatsProps> = ({ stats, className }
     }
   }, [isInView, controls, hasAnimated]);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -95,13 +95,13 @@ export const AnimatedStats: React.FC<AnimatedStatsProps> = ({ stats, className }
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 12
       }

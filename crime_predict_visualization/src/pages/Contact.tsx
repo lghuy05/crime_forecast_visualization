@@ -1,5 +1,3 @@
-import React from 'react'
-
 const ContactPage = () => {
   return (
     <div className="min-h-screen pt-20 bg-black text-white">

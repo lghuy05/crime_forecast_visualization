@@ -1,8 +1,8 @@
 // GridVisualizationPage.tsx - SIMPLIFIED VERSION
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Rectangle, LayersControl, LayerGroup, Tooltip, Popup } from 'react-leaflet';
-import { LatLngBoundsExpression } from 'leaflet';
+import type { LatLngBoundsExpression, LeafletMouseEvent, Path } from 'leaflet';
 import { crimePredictionAPI } from '../api';
 import type {
   ModelType,
@@ -274,14 +274,16 @@ export default function GridVisualizationPage() {
               dashArray: model === 'baseline' ? '5, 5' : undefined,
             }}
             eventHandlers={{
-              mouseover: (e) => {
-                e.target.setStyle({
+              mouseover: (e: LeafletMouseEvent) => {
+                const target = e.target as Path;
+                target.setStyle({
                   weight: 2.5,
                   fillOpacity: 0.9,
                 });
               },
-              mouseout: (e) => {
-                e.target.setStyle({
+              mouseout: (e: LeafletMouseEvent) => {
+                const target = e.target as Path;
+                target.setStyle({
                   weight: 1.5,
                   fillOpacity: 0.7,
                 });

@@ -4,8 +4,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const useGSAP = (callback: (gsap: typeof gsap) => void) => {
-  const context = useRef<gsap.Context>();
+type GSAPInstance = typeof import('gsap').gsap;
+
+export const useGSAP = (callback: (gsapInstance: GSAPInstance) => void) => {
+  const context = useRef<gsap.Context | null>(null);
 
   useEffect(() => {
     context.current = gsap.context(() => {

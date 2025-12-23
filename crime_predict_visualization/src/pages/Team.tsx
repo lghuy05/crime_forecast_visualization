@@ -1,4 +1,3 @@
-import React from 'react'
 import { AnimatedTestimonials } from '../components/ui/animated-testimonials'
 import { teamImages } from '../lib/team-images'
 

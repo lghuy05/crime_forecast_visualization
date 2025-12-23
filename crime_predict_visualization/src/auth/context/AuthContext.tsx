@@ -1,8 +1,9 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, type ReactNode, type FC } from 'react';
 import { buildApiUrl } from '../../config/api';
-import { AuthContext, AuthContextType, User } from './auth-context';
+import { AuthContext } from './auth-context';
+import type { AuthContextType, User } from './auth-context';
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 

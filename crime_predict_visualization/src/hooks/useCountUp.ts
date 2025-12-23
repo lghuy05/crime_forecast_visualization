@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 
 export function useCountUp(end: number, duration: number = 2000, start: number = 0): number {
   const [count, setCount] = useState(start);
-  const frameRef = useRef<number>();
+  const frameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
   useEffect(() => {

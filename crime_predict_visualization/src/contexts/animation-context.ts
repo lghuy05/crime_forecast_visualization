@@ -1,5 +1,4 @@
 import { createContext } from "react";
-import type { gsap } from "gsap";
 
 export interface AnimationContextType {
   registerAnimation: (id: string, animation: gsap.core.Tween) => void;

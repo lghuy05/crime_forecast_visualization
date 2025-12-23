@@ -1,12 +1,12 @@
 
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, type FC, type ComponentType } from 'react';
 import { gsap } from 'gsap';
 
 interface EnhancedAnimatedStat {
   label: string;
   value: number;
   suffix: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   color: string;
   duration?: number;
 }
@@ -16,7 +16,7 @@ interface EnhancedAnimatedStatsProps {
   className?: string;
 }
 
-export const EnhancedAnimatedStats: React.FC<EnhancedAnimatedStatsProps> = ({ stats, className }) => {
+export const EnhancedAnimatedStats: FC<EnhancedAnimatedStatsProps> = ({ stats, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const statRefs = useRef<(HTMLDivElement | null)[]>([]);
   const valueRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -207,7 +207,9 @@ export const EnhancedAnimatedStats: React.FC<EnhancedAnimatedStatsProps> = ({ st
           return (
             <div
               key={index}
-              ref={el => statRefs.current[index] = el}
+              ref={(el) => {
+                statRefs.current[index] = el;
+              }}
               className="relative cursor-pointer h-full"
               onMouseEnter={() => handleMouseEnter(index)}
               onMouseLeave={() => handleMouseLeave(index)}
@@ -226,7 +228,9 @@ export const EnhancedAnimatedStats: React.FC<EnhancedAnimatedStatsProps> = ({ st
                 {/* Animated number with suffix */}
                 <div className="text-4xl md:text-5xl font-bold mb-2 text-white flex items-baseline justify-center gap-1">
                   <span
-                    ref={el => valueRefs.current[index] = el}
+                    ref={(el) => {
+                      valueRefs.current[index] = el;
+                    }}
                     className="stat-number inline-block min-w-[2ch] text-center"
                   >
                     0
