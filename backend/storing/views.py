@@ -31,8 +31,8 @@ def get_top_predictions(request):
     # Get period from query parameter
     period = request.GET.get("period")
     limit_param = request.GET.get("limit")
-    default_limit = 5
-    max_limit = 5
+    default_limit = 20
+    max_limit = 20
 
     if not period:
         return Response(
