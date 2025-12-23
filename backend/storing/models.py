@@ -69,6 +69,9 @@ class ActualCrime(models.Model):
         verbose_name_plural = "Actual Crime Records"
         ordering = ["target_period", "-actual_crime_count"]
         unique_together = [["grid", "target_period"]]  # One record per grid per period
+        indexes = [
+            models.Index(fields=["target_period", "rank"]),
+        ]
 
     def __str__(self):
         return f"Grid {self.grid.grid_id} - {self.target_period}: {self.actual_crime_count} crimes"
@@ -108,6 +111,9 @@ class MLPPrediction(models.Model):
         verbose_name = "MLP Prediction"
         verbose_name_plural = "MLP Predictions"
         unique_together = [["grid", "target_period"]]
+        indexes = [
+            models.Index(fields=["target_period", "rank"]),
+        ]
 
     def __str__(self):
         return f"Grid {self.grid.grid_id} - {self.target_period}: {self.actual_crime_count} crimes"
@@ -142,6 +148,9 @@ class BaselinePrediction(models.Model):
         verbose_name = "Baseline Prediction"
         verbose_name_plural = "Baseline Predictions"
         unique_together = [["grid", "target_period"]]  # Can have multiple methods
+        indexes = [
+            models.Index(fields=["target_period", "rank"]),
+        ]
 
     def __str__(self):
         return f"Grid {self.grid.grid_id} - {self.target_period}: {self.actual_crime_count} crimes"

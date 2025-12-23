@@ -28,6 +28,9 @@ def api_health(request):
 def get_top_predictions(request):
     # Get period from query parameter
     period = request.GET.get("period")
+    limit_param = request.GET.get("limit")
+    default_limit = 20
+    max_limit = 50
 
     if not period:
         return Response(
@@ -46,27 +49,45 @@ def get_top_predictions(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    if limit_param is None:
+        limit = default_limit
+    else:
+        try:
+            limit = int(limit_param)
+        except ValueError:
+            return Response(
+                {"success": False, "error": "Limit must be an integer"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if limit < 1:
+            return Response(
+                {"success": False, "error": "Limit must be at least 1"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if limit > max_limit:
+            limit = max_limit
+
     try:
-        # Get top 50 ranked predictions for each model for this period
+        # Get top ranked predictions for each model for this period
         # ACTUAL CRIME
         actual_data = (
             ActualCrime.objects.filter(target_period=period_int)
             .select_related("grid")
-            .order_by("rank")[:50]
+            .order_by("rank")[:limit]
         )
 
         # MLP PREDICTIONS
         mlp_data = (
             MLPPrediction.objects.filter(target_period=period_int)
             .select_related("grid")
-            .order_by("rank")[:50]
+            .order_by("rank")[:limit]
         )
 
         # BASELINE PREDICTIONS
         baseline_data = (
             BaselinePrediction.objects.filter(target_period=period_int)
             .select_related("grid")
-            .order_by("rank")[:50]
+            .order_by("rank")[:limit]
         )
         actual_serializer = ActualCrimeSerializer(actual_data, many=True)
         mlp_serializer = MLPPredictionSerializer(mlp_data, many=True)
