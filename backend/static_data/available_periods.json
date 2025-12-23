@@ -1,0 +1,35 @@
+{
+  "success": true,
+  "periods": [
+    202302,
+    202303,
+    202304
+  ],
+  "periods_detail": [
+    {
+      "period": 202302,
+      "available_models": [
+        "Lee Algorithm",
+        "MLP"
+      ],
+      "period_label": "Period 202302"
+    },
+    {
+      "period": 202303,
+      "available_models": [
+        "Lee Algorithm",
+        "MLP"
+      ],
+      "period_label": "Period 202303"
+    },
+    {
+      "period": 202304,
+      "available_models": [
+        "Lee Algorithm",
+        "MLP"
+      ],
+      "period_label": "Period 202304"
+    }
+  ],
+  "count": 3
+}

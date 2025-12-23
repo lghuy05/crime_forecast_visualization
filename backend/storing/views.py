@@ -9,8 +9,38 @@ from .serializers import (
     SimpleMetricSerializer,
 )
 from django.utils import timezone  # Fixed import
+from django.conf import settings
 from django.views.decorators.cache import cache_page
 import os
+from pathlib import Path
+import json
+
+
+STATIC_DATA_DIR = Path(
+    getattr(settings, "STATIC_DATA_DIR", Path(settings.BASE_DIR) / "static_data")
+)
+
+
+def _load_static_json(filename):
+    path = STATIC_DATA_DIR / filename
+    if not path.exists():
+        return None
+    try:
+        with path.open("r", encoding="utf-8") as file:
+            return json.load(file)
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _apply_prediction_limit(payload, limit):
+    if not payload or "data" not in payload:
+        return payload
+    limited_data = {}
+    for key in ("actual", "mlp", "baseline"):
+        limited_data[key] = payload["data"].get(key, [])[:limit]
+    payload["data"] = limited_data
+    payload["counts"] = {key: len(value) for key, value in limited_data.items()}
+    return payload
 
 
 @api_view(["GET"])
@@ -70,6 +100,12 @@ def get_top_predictions(request):
             limit = max_limit
 
     try:
+        static_payload = _load_static_json(f"top_predictions_{period_int}.json")
+        if static_payload:
+            static_payload["period"] = period_int
+            static_payload = _apply_prediction_limit(static_payload, limit)
+            return Response(static_payload)
+
         # Get top ranked predictions for each model for this period
         # ACTUAL CRIME
         actual_data = (
@@ -231,6 +267,11 @@ def get_metrics_by_period(request):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        static_payload = _load_static_json(f"metrics_{period_int}.json")
+        if static_payload:
+            static_payload["period"] = period_int
+            return Response(static_payload)
+
         # Get all metrics for the specified period
         metrics = MetricData.objects.filter(target_period=period_int).order_by("model")
         try:
@@ -348,6 +389,10 @@ def get_available_periods(request):
     Useful for populating the period selector in frontend
     """
     try:
+        static_payload = _load_static_json("available_periods.json")
+        if static_payload:
+            return Response(static_payload)
+
         # Get all unique periods from the MetricData table
         periods = MetricData.objects.all().order_by("target_period")
         unique_periods = set()

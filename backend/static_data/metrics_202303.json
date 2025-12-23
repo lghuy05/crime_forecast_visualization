@@ -1,0 +1,39 @@
+{
+  "success": true,
+  "period": 202303,
+  "metrics": [
+    {
+      "model": "MLP",
+      "model_display": "MLP Predictions",
+      "pei_percent": 72.8,
+      "accuracy": 45.0,
+      "target_period": 202303,
+      "color": "#4ECDC4",
+      "icon": "\ud83e\udde0"
+    },
+    {
+      "model": "Baseline",
+      "model_display": "Baseline Predictions",
+      "pei_percent": 74.8,
+      "accuracy": 40.0,
+      "target_period": 202303,
+      "color": "#FFD166",
+      "icon": "\ud83d\udcca"
+    }
+  ],
+  "comparison": {
+    "pei": {
+      "winner": "Baseline",
+      "difference": 2.0,
+      "mlp_value": 72.8,
+      "baseline_value": 74.8
+    },
+    "accuracy": {
+      "winner": "MLP",
+      "difference": 5.0,
+      "mlp_value": 45.0,
+      "baseline_value": 40.0
+    }
+  },
+  "count": 2
+}
