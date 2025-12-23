@@ -71,6 +71,7 @@ CORS_ALLOWED_ORIGINS = [
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",")
     if origin.strip()
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 # Allow cookies/credentials
 CORS_ALLOW_CREDENTIALS = True
 

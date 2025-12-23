@@ -9,6 +9,7 @@ from .serializers import (
     SimpleMetricSerializer,
 )
 from django.utils import timezone  # Fixed import
+from django.views.decorators.cache import cache_page
 import os
 
 
@@ -24,13 +25,14 @@ def api_health(request):
     )
 
 
+@cache_page(60)
 @api_view(["GET"])
 def get_top_predictions(request):
     # Get period from query parameter
     period = request.GET.get("period")
     limit_param = request.GET.get("limit")
-    default_limit = 20
-    max_limit = 50
+    default_limit = 5
+    max_limit = 5
 
     if not period:
         return Response(
@@ -193,6 +195,7 @@ def get_all_metrics(request):
         )
 
 
+@cache_page(60)
 @api_view(["GET"])
 def get_metrics_by_period(request):
     """
@@ -337,6 +340,7 @@ def get_metrics_by_period(request):
         )
 
 
+@cache_page(60)
 @api_view(["GET"])
 def get_available_periods(request):
     """
