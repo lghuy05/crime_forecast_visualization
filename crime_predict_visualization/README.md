@@ -18,7 +18,7 @@ Interactive web app for exploring spatial-temporal crime predictions, comparing 
 
 ### Prerequisites
 - Node.js 18+ (or a compatible LTS)
-- A running API server at `http://localhost:8000`
+- A running API server at `http://localhost:8000` (or set `VITE_API_BASE_URL`)
 
 ### Install
 ```bash
@@ -47,7 +47,7 @@ The frontend expects these endpoints from the backend:
 - `GET /api/top-predictions/?period=...`
 - `GET /api/metrics-by-period/?period=...`
 
-Base URL is currently hardcoded in `src/api.ts`.
+Base URL is configured via `VITE_API_BASE_URL` (defaults to `http://localhost:8000`).
 
 ## Project Structure (key areas)
 - `src/pages/Home.tsx`: landing and research narrative

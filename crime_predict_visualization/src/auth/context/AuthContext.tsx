@@ -1,4 +1,5 @@
 import React, { useState, useEffect, ReactNode } from 'react';
+import { buildApiUrl } from '../../config/api';
 import { AuthContext, AuthContextType, User } from './auth-context';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -7,7 +8,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const verifyToken = async (token: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/auth/verify', {
+      const response = await fetch(buildApiUrl('/auth/verify'), {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -37,7 +38,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/auth/login', {
+      const response = await fetch(buildApiUrl('/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

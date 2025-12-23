@@ -1,4 +1,5 @@
 // src/api.ts - UPDATED WITH METRICS SUPPORT
+import { buildApiUrl } from './config/api';
 export interface CrimeGrid {
   grid_id: number;
   center_longitude: number;
@@ -97,7 +98,7 @@ export interface PeriodsResponse {
 // Fetch all predictions data
 export const fetchTopPredictions = async (period: number): Promise<ApiResponse> => {
   try {
-    const API_URL = 'http://localhost:8000/api/top-predictions/';
+    const API_URL = buildApiUrl('/api/top-predictions/');
     const response = await fetch(`${API_URL}?period=${period}`);
 
     if (!response.ok) {
@@ -115,7 +116,7 @@ export const fetchTopPredictions = async (period: number): Promise<ApiResponse> 
 // Fetch metrics for a specific period - ADDED
 export const fetchMetricsByPeriod = async (period: number): Promise<MetricsResponse> => {
   try {
-    const API_URL = 'http://localhost:8000/api/metrics-by-period/';
+    const API_URL = buildApiUrl('/api/metrics-by-period/');
     const response = await fetch(`${API_URL}?period=${period}`);
 
     if (!response.ok) {
@@ -133,7 +134,7 @@ export const fetchMetricsByPeriod = async (period: number): Promise<MetricsRespo
 // Fetch all available periods - ADDED
 export const fetchAvailablePeriods = async (): Promise<PeriodsResponse> => {
   try {
-    const API_URL = 'http://localhost:8000/api/available-periods/';
+    const API_URL = buildApiUrl('/api/available-periods/');
     const response = await fetch(API_URL);
 
     if (!response.ok) {
@@ -151,7 +152,7 @@ export const fetchAvailablePeriods = async (): Promise<PeriodsResponse> => {
 // Health check
 export const checkApiHealth = async (): Promise<boolean> => {
   try {
-    const response = await fetch('http://localhost:8000/api/health/');
+    const response = await fetch(buildApiUrl('/api/health/'));
     return response.ok;
   } catch {
     return false;
